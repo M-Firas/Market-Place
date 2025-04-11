@@ -9,6 +9,7 @@ import {
 } from "../app/user/userSlice";
 // components
 import UserInputs from "../components/UserInputs";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -31,7 +32,7 @@ export default function SignIn() {
         dispatch(signInFailure(data.message));
         return;
       }
-      dispatch(signInSuccess());
+      dispatch(signInSuccess(data));
       console.log(data);
       Navigate("/");
     } catch (error) {
@@ -83,6 +84,7 @@ export default function SignIn() {
             "Sign In"
           )}
         </button>
+        <OAuth />
       </form>
       <div className="mt-5 flex gap-2">
         <p>Don't Have an account?</p>
