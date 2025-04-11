@@ -6,33 +6,33 @@ export default function Header() {
   const ListItem = ({ label, link }) => (
     <Link
       to={link}
-      className="hidden sm:inline text-slate-700 hover:text-slate-950 hover:font-semibold cursor-pointer"
+      className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
     >
       <li>{label}</li>
     </Link>
   );
 
   return (
-    <header className=" bg-slate-200 shadow-md ">
-      <div className="flex justify-between items-center max-w-6xl p-3 mx-auto">
+    <header className="bg-slate-200 shadow-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between p-3">
         <Link to="/">
-          <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
+          <h1 className="flex flex-wrap text-sm font-bold sm:text-xl">
             <span className="text-slate-500">Market</span>
             <span className="text-slate-700">Place</span>
           </h1>
         </Link>
-        <form className="flex bg-slate-100 p-3 rounded-lg items-center">
+        <form className="flex items-center rounded-lg bg-slate-100 p-3">
           <input
             type="text"
             placeholder="Search..."
             id="search_icon"
-            className=" bg-transparent focus:outline-none w-24 sm:w-64"
+            className="w-24 bg-transparent focus:outline-none sm:w-64"
           />
-          <label htmlFor="search_icon" className=" cursor-pointer">
+          <label htmlFor="search_icon" className="cursor-pointer">
             <Icon icon="oui:search" className="text-slate-600" />
           </label>
         </form>
-        <ul className="flex  space-x-4">
+        <ul className="flex gap-4">
           <ListItem label={"Home"} link="/" />
           <ListItem label={"About"} link="/about" />
           <ListItem label={"Signin"} link="/signin" />
