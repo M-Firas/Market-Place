@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+// redux
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../app/user/userSlice";
+// components
 import UserInputs from "../components/UserInputs";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { isLoading, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const res = await fetch("api/auth/signin", {
         method: "POST",
         headers: {
@@ -19,12 +27,15 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      setLoading(false);
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        return;
+      }
+      dispatch(signInSuccess());
       console.log(data);
       Navigate("/");
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -47,10 +58,10 @@ export default function SignIn() {
           setFormData={setFormData}
         />
         <button
-          disabled={loading}
+          disabled={isLoading}
           className="cursor-pointer rounded-lg bg-slate-700 p-3 text-white uppercase hover:opacity-95 disabled:opacity-80"
         >
-          {loading ? (
+          {isLoading ? (
             <svg
               aria-hidden="true"
               role="status"
