@@ -1,17 +1,11 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import UserInputs from "../components/UserInputs";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,26 +32,33 @@ export default function SignUp() {
     <div className="mx-auto max-w-lg p-3">
       <h1 className="my-7 text-center text-3xl font-semibold">Sign Up</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
+        <UserInputs
           type="text"
           placeholder="username"
           id="username"
-          className="rounded-lg border border-[#ddd] bg-white p-3 outline-none"
-          onChange={handleChange}
+          formData={formData}
+          setFormData={setFormData}
         />
-        <input
+        <UserInputs
           type="text"
           placeholder="email"
           id="email"
-          className="rounded-lg border border-[#ddd] bg-white p-3 outline-none"
-          onChange={handleChange}
+          formData={formData}
+          setFormData={setFormData}
         />
-        <input
+        <UserInputs
           type="password"
           placeholder="password"
           id="password"
-          className="rounded-lg border border-[#ddd] bg-white p-3 outline-none"
-          onChange={handleChange}
+          formData={formData}
+          setFormData={setFormData}
+        />
+        <UserInputs
+          type="password"
+          placeholder="Confirm Password"
+          id="confirmpassword"
+          formData={formData}
+          setFormData={setFormData}
         />
         <button
           disabled={loading}
