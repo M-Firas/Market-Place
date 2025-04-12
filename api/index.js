@@ -1,14 +1,26 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+// app routes
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
+// app middlewares
+import notFound from './middleware/not-found.js'
+// app pacakges
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import rateLimiter from 'express-rate-limit'
+import helmet from 'helmet'
 
+
+// using env file
 dotenv.config({ path: "./.env" });
 
-console.log("URI:", process.env.MONGO);
-console.log("ALL ENV VARS:", process.env);
+// express config
+const app = express();
+app.use(express.json());
 
+// connecting to MongoDB(database) and starting the server
 mongoose
   .connect(process.env.MONGO, {
     serverSelectionTimeoutMS: 20000, // <- Wait up to 20s before timeout
@@ -20,22 +32,35 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-const app = express();
-
-app.use(express.json());
-
 app.listen(3000, () => {
   console.log("server is running on port 3000!");
 });
 
+// index route
 app.get("/", (req, res) => {
   res.json({
     message: "Hello world",
   });
 });
 
+// app packages
+app.set('trust proxy', 1)
+app.use(rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+}))
+app.use(helmet())
+app.use(morgan('tiny'));
+app.use(cookieParser(process.env.JWT_SECRET));
+
+
+// app routes
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+
+// app middlewares
+app.use(notFound);
+
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
