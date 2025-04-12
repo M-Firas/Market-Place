@@ -1,16 +1,35 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useSelector } from "react-redux";
 
 export default function Header() {
-  const ListItem = ({ label, link }) => (
-    <Link
-      to={link}
-      className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
-    >
-      <li>{label}</li>
-    </Link>
-  );
+  const { currentUser } = useSelector((state) => state.user);
+
+  const ListItem = ({ label, link }) =>
+    label === "signin" ? (
+      <Link
+        to={link}
+        className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
+      >
+        {currentUser ? (
+          <img
+            className="h-7 w-7 rounded-lg object-cover"
+            src={currentUser.avatar}
+            alt="profile"
+          />
+        ) : (
+          <li>{label}</li>
+        )}
+      </Link>
+    ) : (
+      <Link
+        to={link}
+        className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
+      >
+        <li>{label}</li>
+      </Link>
+    );
 
   return (
     <header className="bg-slate-200 shadow-md">
@@ -35,7 +54,7 @@ export default function Header() {
         <ul className="flex gap-4">
           <ListItem label={"Home"} link="/" />
           <ListItem label={"About"} link="/about" />
-          <ListItem label={"Signin"} link="/signin" />
+          <ListItem label={"Signin"} link="/profile" />
         </ul>
       </div>
     </header>
