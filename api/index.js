@@ -53,7 +53,7 @@ app.use(helmet())
 app.use(morgan('tiny'));
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: '*',
   credentials: true
 }));
 
