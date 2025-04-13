@@ -11,7 +11,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import rateLimiter from 'express-rate-limit'
 import helmet from 'helmet'
-
+import cors from "cors"
 
 // using env file
 dotenv.config({ path: "./.env" });
@@ -52,6 +52,10 @@ app.use(rateLimiter({
 app.use(helmet())
 app.use(morgan('tiny'));
 app.use(cookieParser(process.env.JWT_SECRET));
+app.use(cors({
+  origin: ['http://localhost:5173'],
+  credentials: true
+}));
 
 
 // app routes
