@@ -21,13 +21,15 @@ export default function SignIn() {
     try {
       dispatch(signInStart());
       const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/auth/signin",
+        "https://market-place-jj5i.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
+          credentials: "include",
+          // withCredentials: true, //  Axios syntax
         },
       );
       const data = await res.json();
