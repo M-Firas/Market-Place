@@ -6,6 +6,7 @@ export default function UserInputs({
   type,
   placeholder,
   id,
+  defaultVal,
   formData,
   setFormData,
 }) {
@@ -24,6 +25,8 @@ export default function UserInputs({
         type={typo}
         placeholder={placeholder}
         id={id}
+        defaultValue={defaultVal}
+        // defaultValue={defaultVal ? defaultVal : null}
         className="w-full rounded-lg border border-[#ddd] bg-white p-3 outline-none"
         onChange={handleChange}
         required
