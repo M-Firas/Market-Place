@@ -5,49 +5,97 @@ import { cookiesToResponse, createTokenUser } from '../utils/index.js'
 
 
 
+// sign up controller 
+export const signup = async (req, res) => {
+  try {
+    const { username, email, password, confirmPassword } = req.body;
 
-export const signup = async (req, res, next) => {
-  const { username, email, password, confirmPassword } = req.body;
+    // checking if the user exist
+    const userExists = await User.findOne({ email })
+    if (userExists) {
+      throw new CustomError.BadRequestError("Email is Taken!");
+    }
 
-  // checking if the user exist
-  const userExists = await User.findOne({ email })
-  if (userExists) {
-    throw new CustomError.BadRequestError("Email is Taken!");
+    const newUser = new User({ username, email, password });
+    newUser.confirmPassword = confirmPassword;
+
+    // saving the user
+    await newUser.save();
+    res.status(StatusCodes.CREATED).json({ msg: "User Created Successfully" });
+  } catch (error) {
+    console.error("Register Error:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Server error" });
   }
-
-  const newUser = new User({ username, email, password });
-  newUser.confirmPassword = confirmPassword;
-
-  // saving the user
-  await newUser.save();
-  res.status(StatusCodes.CREATED).json({ msg: "User Created Successfully" });
-
-
-
 };
 
-export const login = async (req, res, next) => {
-  const { email, password } = req.body
-  // checking if the email and password are provided
-  if (!email || !password) {
-    throw new CustomError.BadRequestError("please provide email and password!")
-  }
-  // checking if the user exist
-  const user = await User.findOne({ email })
-  if (!user) {
-    throw new CustomError.BadRequestError("invalid Email or Password!");
-  }
+// sign in controller 
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body
+    // checking if the email and password are provided
+    if (!email || !password) {
+      throw new CustomError.BadRequestError("please provide email and password!")
+    }
+    // checking if the user exist
+    const user = await User.findOne({ email })
+    if (!user) {
+      throw new CustomError.BadRequestError("invalid Email or Password!");
+    }
 
-  //checking if the password is correct 
-  const isPasswordCorrect = await user.comparePassword(password)
-  if (!isPasswordCorrect) {
-    throw new CustomError.UnauthenticatedError('Invaild Email or Password')
+    //checking if the password is correct 
+    const isPasswordCorrect = await user.comparePassword(password)
+    if (!isPasswordCorrect) {
+      throw new CustomError.UnauthenticatedError('Invaild Email or Password')
+    }
+
+    // attaching token cookie and signing the user in
+    const tokenUser = createTokenUser(user);
+    cookiesToResponse({ res, user: tokenUser })
+
+    res.status(StatusCodes.OK).json({ user: tokenUser })
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Server error" });
   }
-
-  // attaching cookie and signing the user in
-  const tokenUser = createTokenUser(user);
-  cookiesToResponse({ res, user: tokenUser })
-
-  res.status(StatusCodes.OK).json({ user: tokenUser })
 
 }
+
+// sign in via google controller
+export const googleAuth = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (user) {
+      // attaching token cookie and signing the user in
+      const tokenUser = createTokenUser(user);
+      cookiesToResponse({ res, user: tokenUser });
+
+      return res.status(StatusCodes.OK).json({ user: tokenUser });
+    }
+
+    const generatedPassword =
+      Math.random().toString(36).slice(-8) +
+      Math.random().toString(36).slice(-8);
+
+    const newUser = new User({
+      username:
+        req.body.name.split(' ').join('').toLowerCase() +
+        Math.random().toString(36).slice(-4),
+      email: req.body.email,
+      password: generatedPassword,
+      avatar: req.body.photo,
+    });
+
+    newUser.confirmPassword = generatedPassword;
+    await newUser.save();
+
+    // attaching token cookie and signing the user in
+    const tokenUser = createTokenUser(newUser);
+    cookiesToResponse({ res, user: tokenUser });
+
+    res.status(StatusCodes.OK).json({ user: tokenUser });
+  } catch (error) {
+    console.error("Google OAuth Error:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Server error" });
+  }
+};
