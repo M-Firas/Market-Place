@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UserInputs from "../components/UserInputs";
 import OAuth from "../components/OAuth";
 
@@ -7,6 +7,7 @@ export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +26,7 @@ export default function SignUp() {
       const data = await res.json();
       setLoading(false);
       console.log(data);
-      Navigate("/signin");
+      navigate("/signin");
     } catch (error) {
       setLoading(false);
       setError(error.message);

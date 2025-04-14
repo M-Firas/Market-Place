@@ -3,10 +3,11 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../app/user/userSlice";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function OAuth() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -16,20 +17,24 @@ export default function OAuth() {
 
       console.log(result);
 
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        header: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        "https://market-place-jj5i.onrender.com/api/auth/google",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: result.user.displayName,
+            email: result.user.email,
+            photo: result.user.photoURL,
+          }),
         },
-        body: JSON.stringify({
-          name: result.user.displayName,
-          email: result.user.email,
-          photo: result.user.photoURL,
-        }),
-      });
+      );
       const data = await res.json();
       dispatch(signInSuccess(data));
-      Navigate("/");
+      navigate("/");
     } catch (error) {
       console.log("could not sign in with google", error);
     }
