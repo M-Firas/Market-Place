@@ -1,7 +1,7 @@
 import * as CustomError from '../errors/index.js';
 import { isTokenValid } from "../utils/jwt.js";
 
-export const authenticateUser = async (req, res, next) => {
+const authenticateUser = async (req, res, next) => {
     const token = req.signedCookies.token;
 
     //checking if the token exists
@@ -11,10 +11,14 @@ export const authenticateUser = async (req, res, next) => {
 
     //authenticating the user
     try {
-        const { username, userId } = isTokenValid({ token })
-        req.user = { username, userId };
+        const { username, userId, email, avatar } = isTokenValid({ token })
+        req.user = { username, userId, email, avatar };
         next()
     } catch (error) {
         throw new CustomError.UnauthenticatedError('Authentication Invalid')
     }
+}
+
+export {
+    authenticateUser
 }
