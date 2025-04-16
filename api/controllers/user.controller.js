@@ -56,7 +56,7 @@ export const deleteUser = async (req, res) => {
 export const getSingleUser = async (req, res) => {
   const user = await User.findOne({ _id: req.params.id }).select("-password");
 
-  //checks if the user exists
+  //checking if the user exists
   if (!user) {
     throw new CustomError.NotFoundError(
       `no user exists with id : ${req.params.id}`
