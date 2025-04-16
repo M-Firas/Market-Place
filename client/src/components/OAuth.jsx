@@ -17,17 +17,28 @@ export default function OAuth() {
 
       console.log(result);
 
+<<<<<<< HEAD
       const res = await fetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+=======
+      const res = await fetch(
+        "https://market-place-jj5i.onrender.com/api/auth/google",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: result.user.displayName,
+            email: result.user.email,
+            photo: result.user.photoURL,
+          }),
+>>>>>>> 16c4816f6d6a58768a93373400ddd979bddcafce
         },
-        body: JSON.stringify({
-          name: result.user.displayName,
-          email: result.user.email,
-          photo: result.user.photoURL,
-        }),
-      });
+      );
       const data = await res.json();
       dispatch(signInSuccess(data));
       navigate("/");

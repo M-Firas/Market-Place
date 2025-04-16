@@ -3,5 +3,6 @@ export const createTokenUser = (user) => {
         userId: user._id,
         username: user.username,
         email: user.email,
+        avatar: user.avatar
     };
 };

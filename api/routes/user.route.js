@@ -1,8 +1,14 @@
 import express from "express";
-import { test } from "../controllers/user.controller.js";
+// controllers
+import { deleteUser, getSingleUser, updateUser } from "../controllers/user.controller.js";
+// middlewares
+import { authenticateUser } from '../middleware/authentication.js'
 
 const router = express.Router();
 
-router.get("/test", test);
+
+router.patch("/updateUser", authenticateUser, updateUser)
+router.delete("/deleteUser", authenticateUser, deleteUser)
+router.get("/:id", authenticateUser, getSingleUser)
 
 export default router;
