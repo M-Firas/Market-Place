@@ -34,9 +34,7 @@ export default function UserInputs({
       {type === "password" && (
         <Icon
           icon={typo === "password" ? "mdi:eye" : "ri:eye-off-line"}
-          onClick={() => {
-            typo === "password" ? setTypo("text") : setTypo("password");
-          }}
+          onClick={() => setTypo(typo === "password" ? "text" : "password")}
           className="absolute top-1/2 right-8 -translate-y-1/2 cursor-pointer hover:opacity-70"
         />
       )}

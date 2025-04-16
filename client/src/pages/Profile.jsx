@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
 import {
@@ -225,7 +226,7 @@ export default function Profile() {
         />
         <button
           disabled={isLoading}
-          className="cursor-pointer rounded-xl bg-slate-800 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80"
+          className="cursor-pointer rounded-lg bg-slate-800 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80"
         >
           {isLoading ? (
             <svg
@@ -249,6 +250,11 @@ export default function Profile() {
             "update"
           )}
         </button>
+        <Link to="/create-listing">
+          <button className="w-full rounded-lg bg-green-700 p-3 text-white capitalize hover:opacity-80">
+            create listing
+          </button>
+        </Link>
       </form>
       <div className="mt-5 flex justify-between">
         <span

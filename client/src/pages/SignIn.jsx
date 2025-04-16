@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // redux
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,6 +15,7 @@ export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { isLoading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export default function SignIn() {
       }
       dispatch(signInSuccess(data));
       console.log(data);
-      Navigate("/");
+      navigate("/");
     } catch (error) {
       dispatch(signInFailure(error.message));
     }

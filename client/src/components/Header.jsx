@@ -5,31 +5,24 @@ import { useSelector } from "react-redux";
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
-
-  const ListItem = ({ label, link }) =>
-    label === "signin" ? (
+  const ListItem = ({ label, link }) => (
+    <li className="hidden sm:inline">
       <Link
         to={link}
-        className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
+        className="cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85"
       >
-        {currentUser ? (
+        {label === "signin" && currentUser ? (
           <img
             className="h-7 w-7 rounded-lg object-cover"
             src={currentUser.avatar}
             alt="profile"
           />
         ) : (
-          <li>{label}</li>
+          label
         )}
       </Link>
-    ) : (
-      <Link
-        to={link}
-        className="hidden cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85 sm:inline"
-      >
-        <li>{label}</li>
-      </Link>
-    );
+    </li>
+  );
 
   return (
     <header className="bg-slate-200 shadow-md">
