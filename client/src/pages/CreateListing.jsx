@@ -93,12 +93,6 @@ export default function CreateListing() {
         "https://api.cloudinary.com/v1_1/dxecfdwzc/image/upload",
       );
 
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percent = Math.round((event.loaded * 100) / event.total);
-        }
-      };
-
       xhr.onload = () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -259,6 +253,7 @@ export default function CreateListing() {
             <button
               type="button"
               onClick={handleImagesFileUpload}
+              disabled={isLoading}
               className="cursor-pointer rounded border border-green-700 p-3 text-green-700 uppercase hover:shadow-lg disabled:opacity-80"
             >
               {isLoading ? (

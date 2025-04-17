@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
-
 import {
   uploadUserStart,
   uploadUserSuccess,
@@ -19,20 +18,22 @@ import { useDispatch } from "react-redux";
 import UserInputs from "../components/UserInputs";
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const { currentUser, isLoading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
-  const [imageFile, setImageFile] = useState(undefined);
-
-  const [filePerc, setFilePerc] = useState(0);
-  const [fileUplaodError, setFileUploadError] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     username: currentUser?.user?.username,
     email: currentUser?.user?.email,
     avatar: currentUser?.user?.avatar,
   });
-  const dispatch = useDispatch();
+
+  const [imageFile, setImageFile] = useState(undefined);
+  const [filePerc, setFilePerc] = useState(0);
+  const [fileUplaodError, setFileUploadError] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [showListingError, setShowListingError] = useState(false);
+  const [userListing, setUserListing] = useState([]);
 
   const hanldeFileUplaod = async (e) => {
     const file = e.target.files[0];
@@ -160,6 +161,30 @@ export default function Profile() {
     }
   };
 
+  const handleShowListing = async () => {
+    try {
+      setShowListingError(false);
+      const res = await fetch(
+        // `https://market-place-jj5i.onrender.com/api/user/${currentUser.user.userId}`,
+        `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/68015d3c0c510d8383595356`,
+        {
+          credentials: "include",
+        },
+      );
+      console.log(res);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch listing");
+      }
+
+      const data = await res.json();
+      console.log(data.listing);
+      setUserListing(data.listing);
+    } catch (error) {
+      setShowListingError(true);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-lg p-3 select-none">
       <h1 className="my-7 text-center text-3xl font-semibold">profile</h1>
@@ -280,6 +305,39 @@ export default function Profile() {
         {updateSuccess && "User Is Updated Successfuly "}
       </p>
       <p className="mt-5 text-sm text-red-700">{error ? error : ""}</p>
+      <button
+        onClick={handleShowListing}
+        className="w-full cursor-pointer text-green-700"
+      >
+        Show Listing
+      </button>
+      {showListingError && (
+        <p className="mt-5 text-red-700">Error Showing Listing</p>
+      )}
+      {userListing?._id && (
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3">
+          <Link to={`/listing/${userListing._id}`}>
+            <img
+              src={userListing.imageUrls[0]}
+              className="h-20 w-20 object-contain"
+            />
+          </Link>
+          <Link
+            to={`/listing/${userListing._id}`}
+            className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
+          >
+            <p>{userListing.name}</p>
+          </Link>
+          <div className="flex flex-col items-center">
+            <button className="cursor-pointer text-red-700 uppercase">
+              Delelte
+            </button>
+            <button className="cursor-pointer text-green-700 uppercase">
+              Edit
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
