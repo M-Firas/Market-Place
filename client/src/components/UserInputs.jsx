@@ -10,6 +10,7 @@ export default function UserInputs({
   formData,
   setFormData,
   read,
+  notRequired,
 }) {
   const [typo, setTypo] = useState(type);
 
@@ -30,7 +31,7 @@ export default function UserInputs({
         readOnly={read ? true : false}
         className={`w-full rounded-lg border border-[#ddd] bg-white p-3 outline-none ${read && "cursor-default"} `}
         onChange={handleChange}
-        required
+        required={!notRequired ? true : false}
       />
       {type === "password" && (
         <Icon

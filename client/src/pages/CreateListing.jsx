@@ -1,15 +1,9 @@
-import {
-  getDownloadURL,
-  getStorage,
-  uploadBytesResumable,
-} from "firebase/storage";
 import React, { useState } from "react";
-import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateListing() {
   const navigate = useNavigate();
-  const [files, setFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -50,6 +44,72 @@ export default function CreateListing() {
     }
   };
 
+  const handleImagesFileUpload = async () => {
+    if (!selectedFiles || selectedFiles.length === 0) return;
+
+    if (formData.imageUrls.length + selectedFiles.length > 6) {
+      return setImageUploadError("You can only upload up to 6 images");
+    }
+
+    setImageUploadError(false);
+    setIsLoading(true);
+
+    const urls = [];
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const currentFile = selectedFiles[i];
+
+      const reader = new FileReader();
+      reader.readAsDataURL(currentFile);
+
+      const base64 = await new Promise((reslove) => {
+        reader.onloadend = () => reslove(reader.result);
+      });
+
+      try {
+        const imageUrl = await uploadImageToCloudinary(base64);
+        urls.push(imageUrl);
+      } catch (error) {
+        console.error(`Image ${file.name} upload failed:`, error);
+        setImageUploadError(`Image ${currentFile.name} upload failed`);
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, imageUrls: urls }));
+    setIsLoading(false);
+  };
+
+  const uploadImageToCloudinary = (base64Image) => {
+    return new Promise((resolve, reject) => {
+      const data = new FormData();
+      data.append("file", base64Image);
+      data.append("upload_preset", "Market_Place");
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(
+        "POST",
+        "https://api.cloudinary.com/v1_1/dxecfdwzc/image/upload",
+      );
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded * 100) / event.total);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.secure_url);
+        } else {
+          reject(new Error("Upload failed"));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(data);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -62,15 +122,19 @@ export default function CreateListing() {
       setIsLoading(true);
       setError(false);
 
-      const res = await fetch("/api/listing/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        "https://market-place-jj5i.onrender.com/api/listing/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
         },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-      const data = res.json();
+      );
+      console.log(res);
+      const data = await res.json();
       setIsLoading(false);
 
       if (data.success === false) {
@@ -83,50 +147,10 @@ export default function CreateListing() {
     }
   };
 
-  //   const handleImageSubmit = (e) => {
-  //     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
-  //       const promises = [];
-
-  //       for (let i = 0; i < files.length; i++) {
-  //         promises.push(storeImage(files[i]));
-  //       }
-  //       Promise.all(promises)
-  //         .then((urls) => {
-  //           setFormData({
-  //             ...formData,
-  //             imageUrls: formData.imageUrls.concat(urls),
-  //           });
-  //         })
-  //         .catch((error) => {
-  //           setImageUploadError("Image Upload Filed");
-  //         });
-  //     } else {
-  //       setImageUploadError("you can upload 6 images per listing");
-  //     }
-  //   };
-
-  //   const storeImage = async (file) => {
-  //     return new Promise((resolve, reject) => {
-  //       const storage = getStorage(app);
-  //       const fileName = new Date().getTime() + file.name;
-  //       const storageRef = ref(storage, fileName);
-  //       const uploadTask = uploadBytesResumable(storageRef, file);
-  //       uploadTask.on(
-  //         "state_change",
-  //         (snapshot) => {
-  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //         },
-  //         (error) => {
-  //           reject(error);
-  //         },
-  //         () => {
-  //           getDownloadURL(uploadTask.snapshot.ref).then((getDownloadURL) => {
-  //             resolve(getDownloadURL);
-  //           });
-  //         },
-  //       );
-  //     });
-  //   };
+  const handleDeleteImage = (urlToDelete) => {
+    const updatedUrls = formData.imageUrls.filter((url) => url !== urlToDelete);
+    setFormData((prev) => ({ ...prev, imageUrls: updatedUrls }));
+  };
 
   const CheckBox = ({ label, id }) => (
     <div className="flex gap-2">
@@ -148,8 +172,6 @@ export default function CreateListing() {
       <input
         type="number"
         id={id}
-        // min="1"
-        // max="10"
         required
         onChange={handleChange}
         value={formData[id]}
@@ -229,27 +251,53 @@ export default function CreateListing() {
               accept="image/*"
               id="images"
               multiple
-              onChange={(e) => setFiles(e.target.files)}
+              onChange={(e) => setSelectedFiles(e.target.files)}
               className="w-full cursor-pointer rounded border border-gray-300 p-3"
             />
             <button
               type="button"
-              //   onClick={handleImageSubmit}
+              onClick={handleImagesFileUpload}
               className="cursor-pointer rounded border border-green-700 p-3 text-green-700 uppercase hover:shadow-lg disabled:opacity-80"
             >
-              Upload
+              {isLoading ? (
+                <svg
+                  aria-hidden="true"
+                  role="status"
+                  className="me-3 inline h-4 w-full animate-spin text-white"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="#E5E7EB"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              ) : (
+                "Upload"
+              )}
             </button>
           </div>
           <p className="text-red-700">{imageUploadError && imageUploadError}</p>
           {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url) => (
-              <div className="flex items-center justify-between rounded-lg border border-[#ddd] p-3">
+            formData.imageUrls.map((url, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between rounded-lg border border-[#ddd] p-3"
+              >
                 <img
                   src={url}
                   alt="lisitng image"
                   className="h-20 w-20 rounded-lg object-contain"
                 />
-                <button className="rounded-lg p-3 text-red-700 uppercase hover:opacity-80">
+                <button
+                  onClick={() => handleDeleteImage(url)}
+                  className="cursor-pointer rounded-lg p-3 text-red-700 uppercase hover:opacity-80"
+                >
                   Delete
                 </button>
               </div>

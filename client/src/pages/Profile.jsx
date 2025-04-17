@@ -2,13 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { app } from "../firebase";
+
 import {
   uploadUserStart,
   uploadUserSuccess,
@@ -21,106 +15,107 @@ import {
   signOutUserSuccess,
 } from "../app/user/userSlice";
 import { useDispatch } from "react-redux";
-
 // compoentes
 import UserInputs from "../components/UserInputs";
-// assets
-import avatar from "../assets/imgs/profile_avatar.png";
 
 export default function Profile() {
   const { currentUser, isLoading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
-  const [file, setFile] = useState(undefined);
+  const [imageFile, setImageFile] = useState(undefined);
 
   const [filePerc, setFilePerc] = useState(0);
   const [fileUplaodError, setFileUploadError] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    username: currentUser?.user?.username,
+    email: currentUser?.user?.email,
+    avatar: currentUser?.user?.avatar,
+  });
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  const hanldeFileUplaod = async (e) => {
+    const file = e.target.files[0];
+
     if (file) {
-      hanldeFileUplaod(file);
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = await new Promise((reslove) => {
+          reader.onloadend = () => reslove(reader.result);
+        });
+        try {
+          const imageUrl = await uploadImageToCloudinary(base64Image); //  upload and get URL
+          setImageFile(imageUrl);
+          setFormData({ ...formData, avatar: imageUrl }); //  Send the URL to backend
+        } catch (error) {
+          console.error("Image upload failed:", error);
+        }
+      };
+      reader.readAsDataURL(file);
     }
-  }, [file]);
+  };
 
-  const hanldeFileUplaod = (file) => {
-    // with firebase
-    // //////////////
-    // const storage = getStorage(app);
-    // const fileName = new Date().getTime() + file.name;
-    // const storageRef = ref(storage, fileName);
-    // const upladTask = uploadBytesResumable(storageRef, file);
+  const uploadImageToCloudinary = (base64Image) => {
+    return new Promise((resolve, reject) => {
+      const data = new FormData();
+      data.append("file", base64Image);
+      data.append("upload_preset", "Market_Place");
 
-    // upladTask.on("state_changed", (snapshot) => {
-    //   const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    //   setFilePerc(Math.round(progress));
-    // });
-    // (error) => {
-    //   setFileUploadError(true);
-    // };
-    // () => {
-    //   getDownloadURL(upladTask.snapshot.ref).then((downloadURL) => {
-    //     setFormData({ ...formData, avatar: downloadURL });
-    //   });
-    // };
-    // //////////
-    // with Cloudinary
-    // /////////
-    const url = "https://api.cloudinary.com/v1_1/dvw08g3fg/image/upload";
-    const preset = "market_palce";
-    const formDataCloudinary = new FormData();
-    formDataCloudinary.append("file", file);
-    formDataCloudinary.append("upload_preset", preset);
-
-    try {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
+      xhr.open(
+        "POST",
+        "https://api.cloudinary.com/v1_1/dxecfdwzc/image/upload",
+      );
 
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const progress = (event.loaded / event.total) * 100;
-          setFilePerc(Math.round(progress));
+          const percent = Math.round((event.loaded * 100) / event.total);
+          setFilePerc(percent);
         }
       };
 
       xhr.onload = () => {
         if (xhr.status === 200) {
-          const res = JSON.parse(xhr.responseText);
-          setFormData((prev) => ({ ...prev, avatar: res.secure_url }));
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.secure_url);
         } else {
-          setFileUploadError(true);
+          reject(new Error("Upload failed"));
         }
       };
-
-      xhr.onerror = () => setFileUploadError(true);
-      xhr.send(formDataCloudinary);
-    } catch (error) {
-      console.error("Cloudinary upload error:", error);
-      setFileUploadError(true);
-    }
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(data);
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       dispatch(uploadUserStart());
-      const res = await fetch(`/api/user/update/${currentUser.userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+
+      console.log("Submitting this formData:", formData);
+
+      const response = await fetch(
+        "https://market-place-jj5i.onrender.com/api/user/updateUser",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
-      const data = res.json();
-      if (data.success === false) {
-        dispatch(uploadUserFailuer(data.message));
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        dispatch(uploadUserFailuer(data.msg));
         return;
       }
       dispatch(uploadUserSuccess(data));
       setUpdateSuccess(true);
     } catch (error) {
+      console.error("Submission error:", error);
       dispatch(uploadUserFailuer(error.message));
     }
   };
@@ -128,24 +123,32 @@ export default function Profile() {
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart);
-      const res = await fetch(`/api/user/delete/${currentUser.userId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `https://market-place-jj5i.onrender.com/api/user/deleteUser`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
       const data = res.json();
       if (data.success === false) {
         dispatch(deleteUserFailuer(data.message));
         return;
       }
       dispatch(deleteUserSuccess());
+      console.log(data);
     } catch (error) {
       dispatch(deleteUserFailuer(error.message));
+      console.log(error.message);
     }
   };
 
   const handleSignOut = async () => {
     try {
       dispatch(signOutUserStart());
-      const res = await fetch("/api/auth/signout");
+      const res = await fetch(
+        "https://market-place-jj5i.onrender.com/api/auth/login",
+      );
       const data = res.json();
       if (data.success === false) {
         dispatch(signOutUserFailuer(data.message));
@@ -166,10 +169,10 @@ export default function Profile() {
           ref={fileRef}
           hidden
           accept="image/*"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={hanldeFileUplaod}
         />
         <img
-          src={currentUser?.user.avatar}
+          src={imageFile ? imageFile : currentUser?.user?.avatar}
           alt="profile"
           onClick={() => fileRef.current.click()}
           className="h-24 w-24 cursor-pointer self-center rounded-full object-cover"
@@ -198,7 +201,7 @@ export default function Profile() {
           placeholder={"username"}
           id={"username"}
           defaultVal={
-            currentUser?.user.username ? currentUser.user.username : ""
+            currentUser?.user?.username ? currentUser?.user?.username : ""
           }
           formData={formData}
           setFormData={setFormData}
@@ -207,9 +210,7 @@ export default function Profile() {
           type="text"
           placeholder={"email"}
           id={"email"}
-          defaultVal={currentUser?.user.email ? currentUser.user.email : ""}
-          // formData={formData}
-          // setFormData={setFormData}
+          defaultVal={currentUser?.user?.email ? currentUser?.user?.email : ""}
           read
         />
         <UserInputs
@@ -219,6 +220,7 @@ export default function Profile() {
           default={""}
           formData={formData}
           setFormData={setFormData}
+          notRequired
         />
         <UserInputs
           type="password"
@@ -226,6 +228,7 @@ export default function Profile() {
           id={"confirmpassword"}
           formData={formData}
           setFormData={setFormData}
+          notRequired
         />
         <button
           disabled={isLoading}
@@ -254,7 +257,7 @@ export default function Profile() {
           )}
         </button>
         <Link to="/create-listing">
-          <button className="w-full rounded-lg bg-green-700 p-3 text-white capitalize hover:opacity-80">
+          <button className="w-full cursor-pointer rounded-lg bg-green-700 p-3 text-white capitalize hover:opacity-80">
             create listing
           </button>
         </Link>
