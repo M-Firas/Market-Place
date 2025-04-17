@@ -106,7 +106,7 @@ export default function Profile() {
     e.preventDefault();
     try {
       dispatch(uploadUserStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await fetch(`/api/user/update/${currentUser.userId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +128,7 @@ export default function Profile() {
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart);
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+      const res = await fetch(`/api/user/delete/${currentUser.userId}`, {
         method: "DELETE",
       });
       const data = res.json();
@@ -169,7 +169,7 @@ export default function Profile() {
           onChange={(e) => setFile(e.target.files[0])}
         />
         <img
-          src={currentUser ? currentUser.avatar : avatar}
+          src={currentUser?.user.avatar}
           alt="profile"
           onClick={() => fileRef.current.click()}
           className="h-24 w-24 cursor-pointer self-center rounded-full object-cover"
@@ -197,7 +197,9 @@ export default function Profile() {
           type="text"
           placeholder={"username"}
           id={"username"}
-          defaultVal={currentUser?.username ? currentUser.username : ""}
+          defaultVal={
+            currentUser?.user.username ? currentUser.user.username : ""
+          }
           formData={formData}
           setFormData={setFormData}
         />
@@ -205,9 +207,10 @@ export default function Profile() {
           type="text"
           placeholder={"email"}
           id={"email"}
-          defaultVal={currentUser?.email ? currentUser.email : ""}
-          formData={formData}
-          setFormData={setFormData}
+          defaultVal={currentUser?.user.email ? currentUser.user.email : ""}
+          // formData={formData}
+          // setFormData={setFormData}
+          read
         />
         <UserInputs
           type="password"

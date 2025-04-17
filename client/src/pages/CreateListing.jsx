@@ -1,9 +1,142 @@
-import React from "react";
+import {
+  getDownloadURL,
+  getStorage,
+  uploadBytesResumable,
+} from "firebase/storage";
+import React, { useState } from "react";
+import { app } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateListing() {
+  const navigate = useNavigate();
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+    name: "",
+    description: "",
+    address: "",
+    type: "rent",
+    bedrooms: 1,
+    bathrooms: 1,
+    regularPrice: 0,
+    discountPrice: 0,
+    offer: false,
+    parking: false,
+    furnished: true,
+  });
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handleChange = (e) => {
+    if (e.target.id === "sale" || e.target.id === "rent") {
+      setFormData({ ...formData, type: e.target.id });
+    }
+
+    if (
+      e.target.id === "parking" ||
+      e.target.id === "furnished" ||
+      e.target.id === "offer"
+    ) {
+      setFormData({ ...formData, [e.target.id]: e.target.checked });
+    }
+
+    if (
+      e.target.type === "text" ||
+      e.target.type === "textarea" ||
+      e.target.type === "number"
+    ) {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (formData.imageUrls.length < 1) {
+        return setError("You Must Upload At Least One Image");
+      }
+      if (formData.regularPrice < formData.discountPrice) {
+        return setError("Discount Price Must Be Lower Than Regular Price");
+      }
+      setIsLoading(true);
+      setError(false);
+
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
+      const data = res.json();
+      setIsLoading(false);
+
+      if (data.success === false) {
+        setError(data.message);
+      }
+      navigate(`/listing/${data.userId}`);
+    } catch (error) {
+      setError(error.message);
+      setIsLoading(false);
+    }
+  };
+
+  //   const handleImageSubmit = (e) => {
+  //     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+  //       const promises = [];
+
+  //       for (let i = 0; i < files.length; i++) {
+  //         promises.push(storeImage(files[i]));
+  //       }
+  //       Promise.all(promises)
+  //         .then((urls) => {
+  //           setFormData({
+  //             ...formData,
+  //             imageUrls: formData.imageUrls.concat(urls),
+  //           });
+  //         })
+  //         .catch((error) => {
+  //           setImageUploadError("Image Upload Filed");
+  //         });
+  //     } else {
+  //       setImageUploadError("you can upload 6 images per listing");
+  //     }
+  //   };
+
+  //   const storeImage = async (file) => {
+  //     return new Promise((resolve, reject) => {
+  //       const storage = getStorage(app);
+  //       const fileName = new Date().getTime() + file.name;
+  //       const storageRef = ref(storage, fileName);
+  //       const uploadTask = uploadBytesResumable(storageRef, file);
+  //       uploadTask.on(
+  //         "state_change",
+  //         (snapshot) => {
+  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //         },
+  //         (error) => {
+  //           reject(error);
+  //         },
+  //         () => {
+  //           getDownloadURL(uploadTask.snapshot.ref).then((getDownloadURL) => {
+  //             resolve(getDownloadURL);
+  //           });
+  //         },
+  //       );
+  //     });
+  //   };
+
   const CheckBox = ({ label, id }) => (
     <div className="flex gap-2">
-      <input type="checkbox" id={id} className="w-5 cursor-pointer" />
+      <input
+        type="checkbox"
+        id={id}
+        className="w-5 cursor-pointer"
+        onChange={handleChange}
+        checked={formData[id] || formData.type === id}
+      />
       <label htmlFor={id} className="cursor-pointer">
         <p>{label}</p>
       </label>
@@ -15,9 +148,11 @@ export default function CreateListing() {
       <input
         type="number"
         id={id}
-        min="1"
-        max="10"
+        // min="1"
+        // max="10"
         required
+        onChange={handleChange}
+        value={formData[id]}
         className={` ${(id === "regularPrice" || id === "discountPrice") && "w-40"} rounded-lg border border-gray-300 bg-white p-3 focus:outline-gray-300`}
       />
       <div>
@@ -34,7 +169,10 @@ export default function CreateListing() {
       <h1 className="my-7 text-center text-3xl font-semibold">
         Create A Listing
       </h1>
-      <from className={"flex flex-col gap-4 sm:flex-row"}>
+      <form
+        onSubmit={handleSubmit}
+        className={"flex flex-col gap-4 sm:flex-row"}
+      >
         <div className="flex flex-1 flex-col gap-4 p-2">
           <input
             type="text"
@@ -42,6 +180,8 @@ export default function CreateListing() {
             id="name"
             maxLength={"62"}
             required
+            onChange={handleChange}
+            value={formData.name}
             className="rounded-lg bg-white p-3 outline-none focus:border-none"
           />
           <textarea
@@ -49,6 +189,8 @@ export default function CreateListing() {
             placeholder="Description"
             id="description"
             required
+            onChange={handleChange}
+            value={formData.description}
             className="resize-none rounded-lg bg-white p-3 outline-none focus:border-none"
           />
           <input
@@ -56,6 +198,8 @@ export default function CreateListing() {
             placeholder="Address"
             id="address"
             required
+            onChange={handleChange}
+            value={formData.address}
             className="rounded-lg bg-white p-3 outline-none focus:border-none"
           />
           <div className="mt-2 flex flex-wrap gap-8">
@@ -69,7 +213,9 @@ export default function CreateListing() {
             <InfoBox label={"Beds"} id={"bedrooms"} />
             <InfoBox label={"Baths"} id={"bathrooms"} />
             <InfoBox label={"Regular Price"} id={"regularPrice"} />
-            <InfoBox label={"Discount Price"} id={"discountPrice"} />
+            {formData.offer && (
+              <InfoBox label={"Discount Price"} id={"discountPrice"} />
+            )}
           </div>
         </div>
         <div className="flex flex-1 flex-col gap-4">
@@ -83,17 +229,60 @@ export default function CreateListing() {
               accept="image/*"
               id="images"
               multiple
+              onChange={(e) => setFiles(e.target.files)}
               className="w-full cursor-pointer rounded border border-gray-300 p-3"
             />
-            <button className="cursor-pointer rounded border border-green-700 p-3 text-green-700 uppercase hover:shadow-lg disabled:opacity-80">
+            <button
+              type="button"
+              //   onClick={handleImageSubmit}
+              className="cursor-pointer rounded border border-green-700 p-3 text-green-700 uppercase hover:shadow-lg disabled:opacity-80"
+            >
               Upload
             </button>
           </div>
-          <button className="cursor-pointer rounded-lg bg-slate-700 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80">
-            Creat Listing
+          <p className="text-red-700">{imageUploadError && imageUploadError}</p>
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((url) => (
+              <div className="flex items-center justify-between rounded-lg border border-[#ddd] p-3">
+                <img
+                  src={url}
+                  alt="lisitng image"
+                  className="h-20 w-20 rounded-lg object-contain"
+                />
+                <button className="rounded-lg p-3 text-red-700 uppercase hover:opacity-80">
+                  Delete
+                </button>
+              </div>
+            ))}
+          <button
+            disabled={isLoading}
+            className="cursor-pointer rounded-lg bg-slate-700 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80"
+          >
+            {isLoading ? (
+              <svg
+                aria-hidden="true"
+                role="status"
+                className="me-3 inline h-4 w-4 animate-spin text-white"
+                viewBox="0 0 100 101"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="#E5E7EB"
+                />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="currentColor"
+                />
+              </svg>
+            ) : (
+              "Creat Listing"
+            )}
           </button>
+          {error && <p className="mt-7 text-red-700">{error}</p>}
         </div>
-      </from>
+      </form>
     </main>
   );
 }

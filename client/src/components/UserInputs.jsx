@@ -9,6 +9,7 @@ export default function UserInputs({
   defaultVal,
   formData,
   setFormData,
+  read,
 }) {
   const [typo, setTypo] = useState(type);
 
@@ -26,8 +27,8 @@ export default function UserInputs({
         placeholder={placeholder}
         id={id}
         defaultValue={defaultVal}
-        // defaultValue={defaultVal ? defaultVal : null}
-        className="w-full rounded-lg border border-[#ddd] bg-white p-3 outline-none"
+        readOnly={read ? true : false}
+        className={`w-full rounded-lg border border-[#ddd] bg-white p-3 outline-none ${read && "cursor-default"} `}
         onChange={handleChange}
         required
       />

@@ -19,10 +19,10 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        {/* <Route element={<PrivateRoute />}> */}
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/create-listing" element={<CreateListing />} />
-        {/* </Route> */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/create-listing" element={<CreateListing />} />
+        </Route>
       </Routes>
     </Router>
   );

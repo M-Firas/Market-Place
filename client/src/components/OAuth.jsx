@@ -17,12 +17,6 @@ export default function OAuth() {
 
       console.log(result);
 
-<<<<<<< HEAD
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-=======
       const res = await fetch(
         "https://market-place-jj5i.onrender.com/api/auth/google",
         {
@@ -36,7 +30,6 @@ export default function OAuth() {
             email: result.user.email,
             photo: result.user.photoURL,
           }),
->>>>>>> 16c4816f6d6a58768a93373400ddd979bddcafce
         },
       );
       const data = await res.json();
