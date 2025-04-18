@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: "https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
-    }
+    },
   },
   { timestamps: true }
 );
@@ -58,6 +58,15 @@ userSchema.methods.comparePassword = async function (userPassword) {
   const isMatch = await bcrypt.compare(userPassword, this.password);
   return isMatch;
 };
+
+// virtual field for user listings
+userSchema.virtual('listings', {
+  ref: 'Listing',
+  localField: '_id',
+  foreignField: 'userRef',
+});
+userSchema.set('toObject', { virtuals: true });
+userSchema.set('toJSON', { virtuals: true });
 
 
 

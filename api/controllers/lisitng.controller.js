@@ -99,6 +99,16 @@ export const getSingleListing = async (req, res) => {
     res.status(StatusCodes.OK).json({ listing })
 }
 
+// get current user listings controller
+export const getCurrentUserListings = async (req, res) => {
+
+    // getting user listings
+    const listings = await Listing.find({ userRef: req.user.userId })
+
+    res.status(StatusCodes.OK).json({ count: listings.length, listings })
+}
+
+
 // get all listing controller
 export const getAllListings = async (req, res) => {
     // Parsing pagination parameters with default values (9 is default)
@@ -150,5 +160,5 @@ export const getAllListings = async (req, res) => {
         .limit(limit)
         .skip(startIndex);
 
-    return res.status(StatusCodes.OK).json({ listings });
+    return res.status(StatusCodes.OK).json({ count: listings.length, listings });
 };
