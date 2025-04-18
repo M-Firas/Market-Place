@@ -11,27 +11,31 @@ import CreateListing from "./pages/CreateListing";
 import PrivateRoute from "./components/PrivateRoute";
 import UpdateListing from "./pages/UpdateListing";
 import Listing from "./pages/Listing";
+import PopupInfo from "./app/popup/PopupInfo";
 
 function App() {
   return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/listing/:listingId" element={<Listing />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/create-listing" element={<CreateListing />} />
-          <Route
-            path="/update-lsiting/:listingId"
-            element={<UpdateListing />}
-          />
-        </Route>
-      </Routes>
-    </Router>
+    <>
+      <PopupInfo />
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/listing/:listingId" element={<Listing />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/create-listing" element={<CreateListing />} />
+            <Route
+              path="/update-lsiting/:listingId"
+              element={<UpdateListing />}
+            />
+          </Route>
+        </Routes>
+      </Router>
+    </>
   );
 }
 

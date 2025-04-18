@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // redux
 import { useDispatch, useSelector } from "react-redux";
-import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from "../app/user/userSlice";
+import { signInStart, signInSuccess } from "../app/user/userSlice";
+import { showPopup } from "../app/popup/popupSlice";
 // components
 import UserInputs from "../components/UserInputs";
 import OAuth from "../components/OAuth";
@@ -35,14 +32,16 @@ export default function SignIn() {
       );
       console.log(res);
       if (res.ok === false) {
-        dispatch(signInFailure("invalid user or password"));
+        dispatch(
+          showPopup({ message: "invalid user or password", type: "error" }),
+        );
         return;
       }
       const data = await res.json();
       dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
-      dispatch(signInFailure(error.message));
+      dispatch(showPopup({ message: error.message, type: "error" }));
     }
   };
 

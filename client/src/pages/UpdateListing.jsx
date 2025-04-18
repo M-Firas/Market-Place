@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { showPopup } from "../app/popup/popupSlice";
 
 export default function UpdateListing() {
   const navigate = useNavigate();
   const params = useParams();
+  const dispatch = useDispatch();
 
   const [currentListData, setCurrentListData] = useState({});
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -140,7 +142,16 @@ export default function UpdateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      navigate(`/profile`);
+
+      dispatch(
+        showPopup({
+          message: "Listing Updated successfully",
+          type: "success",
+        }),
+      );
+      setTimeout(() => {
+        navigate(`/profile`);
+      }, 3500);
     } catch (error) {
       setError(error.message);
       setIsLoading(false);

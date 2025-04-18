@@ -1,5 +1,33 @@
 @import "tailwindcss";
-@tailwind utilities;
+
+/* Your custom classes can go here */
+@theme {
+  --animate-show-in: fade-in 0.75s ease-out;
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      right: -200px;
+    }
+    100% {
+      opacity: 1;
+      right: 50px;
+    }
+  }
+}
+
+@theme {
+  --animate-fade-out: fade-out 0.75s ease-out;
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+      right: 10px;
+    }
+    100% {
+      opacity: 0;
+      right: -200px;
+    }
+  }
+}
 
 body {
   background-color: rgb(241, 245, 241);

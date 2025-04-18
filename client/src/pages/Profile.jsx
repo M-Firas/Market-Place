@@ -14,6 +14,7 @@ import {
   signOutUserSuccess,
 } from "../app/user/userSlice";
 import { useDispatch } from "react-redux";
+import { showPopup } from "../app/popup/popupSlice";
 // compoentes
 import UserInputs from "../components/UserInputs";
 
@@ -96,8 +97,6 @@ export default function Profile() {
     try {
       dispatch(uploadUserStart());
 
-      console.log("Submitting this formData:", formData);
-
       const response = await fetch(
         "https://market-place-jj5i.onrender.com/api/user/updateUser",
         {
@@ -113,14 +112,19 @@ export default function Profile() {
       const data = await response.json();
 
       if (!response.ok) {
-        dispatch(uploadUserFailuer(data.msg));
+        // dispatch(uploadUserFailuer(data.msg));
+        dispatch(showPopup({ message: data.msg, type: "error" }));
         return;
       }
       dispatch(uploadUserSuccess(data));
-      setUpdateSuccess(true);
+      dispatch(
+        showPopup({ message: "info updated successfully", type: "success" }),
+      ),
+        setUpdateSuccess(true);
     } catch (error) {
-      console.error("Submission error:", error);
-      dispatch(uploadUserFailuer(error.message));
+      // console.error("Submission error:", error);
+      // dispatch(uploadUserFailuer(error.message));
+      dispatch(showPopup({ message: error.message, type: "error" }));
     }
   };
 
@@ -142,8 +146,9 @@ export default function Profile() {
       dispatch(deleteUserSuccess());
       navigate("/signin");
     } catch (error) {
-      dispatch(deleteUserFailuer(error.message));
-      console.log(error.message);
+      // dispatch(deleteUserFailuer(error.message));
+      dispatch(showPopup({ message: error.message, type: "error" }));
+      // console.log(error.message);
     }
   };
 
@@ -156,11 +161,13 @@ export default function Profile() {
       const data = res.json();
       if (data.success === false) {
         dispatch(signOutUserFailuer(data.message));
+        dispatch(showPopup({ message: data.mesg, type: "error" }));
         return;
       }
       dispatch(signOutUserSuccess());
     } catch (error) {
-      dispatch(signOutUserFailuer(error.message));
+      // dispatch(signOutUserFailuer(error.message));
+      dispatch(showPopup({ message: error.message, type: "error" }));
     }
   };
 
@@ -176,13 +183,21 @@ export default function Profile() {
       console.log(res);
 
       if (!res.ok) {
-        throw new Error("Failed to fetch listing");
+        // throw new Error("Failed to fetch listing");
+        dispatch(showPopup({ message: res.msg, type: "error" }));
       }
 
       const data = await res.json();
       setUserListing(data.listings);
+      dispatch(
+        showPopup({
+          message: "Listing uploaded successfully",
+          type: "success",
+        }),
+      );
     } catch (error) {
       setShowListingError(true);
+      dispatch(showPopup({ message: error.message, type: "error" }));
     }
   };
 
@@ -199,12 +214,20 @@ export default function Profile() {
       if (res.ok === false) {
         setDeleteLoading(false);
         console.log(res.msg);
+        dispatch(showPopup({ message: res.msg, type: "error" }));
         return;
       }
-      handleShowListing();
+      dispatch(
+        showPopup({ message: "Listing deleted successfully", type: "success" }),
+      );
       setDeleteLoading(false);
+
+      setTimeout(() => {
+        handleShowListing();
+      }, 3500);
     } catch (error) {
       setDeleteLoading(false);
+      dispatch(showPopup({ message: error.message, type: "error" }));
       console.log(error);
     }
   };
