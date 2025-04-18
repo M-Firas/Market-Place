@@ -199,7 +199,7 @@ export default function UpdateListing() {
         bedrooms: currentListData.bedrooms,
         bathrooms: currentListData.bathrooms,
         regularPrice: currentListData.regularPrice,
-        discountPrice: currentListData.discountPrice,
+        discountPrice: currentListData.discountPrice || 0,
         offer: currentListData.offer,
         parking: currentListData.parking,
         furnished: currentListData.furnished,

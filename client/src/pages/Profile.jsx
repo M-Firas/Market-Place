@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useRef } from "react";
 import {
@@ -19,6 +19,7 @@ import UserInputs from "../components/UserInputs";
 
 export default function Profile() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentUser, isLoading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
 
@@ -34,6 +35,7 @@ export default function Profile() {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [showListingError, setShowListingError] = useState(false);
   const [userListing, setUserListing] = useState([]);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const hanldeFileUplaod = async (e) => {
     const file = e.target.files[0];
@@ -137,7 +139,7 @@ export default function Profile() {
         return;
       }
       dispatch(deleteUserSuccess());
-      console.log(data);
+      navigate("/signin");
     } catch (error) {
       dispatch(deleteUserFailuer(error.message));
       console.log(error.message);
@@ -166,7 +168,6 @@ export default function Profile() {
       setShowListingError(false);
       const res = await fetch(
         `https://market-place-jj5i.onrender.com/api/listing/my-listings`,
-        // `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/68015d3c0c510d8383595356`,
         {
           credentials: "include",
         },
@@ -181,6 +182,29 @@ export default function Profile() {
       setUserListing(data.listings);
     } catch (error) {
       setShowListingError(true);
+    }
+  };
+
+  const handleDeleteListing = async (listId) => {
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(
+        `https://market-place-jj5i.onrender.com/api/listing/delete/${listId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
+      if (res.ok === false) {
+        setDeleteLoading(false);
+        console.log(res.msg);
+        return;
+      }
+      handleShowListing();
+      setDeleteLoading(false);
+    } catch (error) {
+      setDeleteLoading(false);
+      console.log(error);
     }
   };
 
@@ -313,38 +337,45 @@ export default function Profile() {
       {showListingError && (
         <p className="mt-5 text-red-700">Error Showing Listing</p>
       )}
-      {userListing.length > 0 && (
-        <div className="flex flex-col-reverse">
-          {userListing.map((list, index) => (
-            <div
-              key={index}
-              className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3"
-            >
-              <Link to={`/listing/${list._id}`}>
-                <img
-                  src={list.imageUrls[0]}
-                  className="h-20 w-20 object-contain"
-                />
-              </Link>
-              <Link
-                to={`/listing/${list._id}`}
-                className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
+      {deleteLoading ? (
+        <p>List Is Updating...</p>
+      ) : (
+        userListing.length > 0 && (
+          <div className="flex flex-col-reverse">
+            {userListing.map((list, index) => (
+              <div
+                key={index}
+                className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3"
               >
-                <p>{list.name}</p>
-              </Link>
-              <div className="flex flex-col items-center">
-                <button className="cursor-pointer text-red-700 uppercase">
-                  Delelte
-                </button>
-                <Link to={`/update-lsiting/${list._id}`}>
-                  <button className="cursor-pointer text-green-700 uppercase">
-                    Edit
-                  </button>
+                <Link to={`/listing/${list._id}`}>
+                  <img
+                    src={list.imageUrls[0]}
+                    className="h-20 w-20 object-contain"
+                  />
                 </Link>
+                <Link
+                  to={`/listing/${list._id}`}
+                  className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
+                >
+                  <p>{list.name}</p>
+                </Link>
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={() => handleDeleteListing(list._id)}
+                    className="cursor-pointer text-red-700 uppercase"
+                  >
+                    Delelte
+                  </button>
+                  <Link to={`/update-lsiting/${list._id}`}>
+                    <button className="cursor-pointer text-green-700 uppercase">
+                      Edit
+                    </button>
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
     </div>
   );
