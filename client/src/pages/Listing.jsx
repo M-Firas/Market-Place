@@ -7,13 +7,17 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import { useSelector } from "react-redux";
+import Contact from "../components/Contact";
 
 export default function Listing() {
+  const { currentUser } = useSelector((state) => state.user);
   const params = useParams();
   const [listing, setListing] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [contact, setContact] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -141,6 +145,16 @@ export default function Listing() {
                 {listing.listing.furnished ? "Furnished" : "Unfurnished"}
               </li>
             </ul>
+            {currentUser &&
+              listing.listing.userRef !== currentUser.user.userId && (
+                <button
+                  onClick={() => setContact(true)}
+                  className="cursor-pointer rounded-lg bg-slate-700 p-3 text-white uppercase hover:opacity-80"
+                >
+                  Contact Landlord
+                </button>
+              )}
+            {contact && <Contact listing={listing} />}
           </div>
         </div>
       )}

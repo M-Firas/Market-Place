@@ -39,22 +39,23 @@ export default function Profile() {
 
   const hanldeFileUplaod = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Image = await new Promise((reslove) => {
-          reader.onloadend = () => reslove(reader.result);
-        });
-        try {
-          const imageUrl = await uploadImageToCloudinary(base64Image); //  upload and get URL
-          setImageFile(imageUrl);
-          setFormData({ ...formData, avatar: imageUrl }); //  Send the URL to backend
-        } catch (error) {
-          console.error("Image upload failed:", error);
-        }
-      };
-      reader.readAsDataURL(file);
+    const toBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = (err) => reject(err);
+      });
+
+    try {
+      const base64Image = await toBase64(file);
+      const imageUrl = await uploadImageToCloudinary(base64Image);
+      setImageFile(imageUrl);
+      setFormData((prev) => ({ ...prev, avatar: imageUrl }));
+    } catch (error) {
+      console.error("Image upload failed:", error);
     }
   };
 
