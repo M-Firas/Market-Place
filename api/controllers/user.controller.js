@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Listing from "../models/listing.model.js";
 import { StatusCodes } from "http-status-codes";
 import * as CustomError from '../errors/index.js';
 import { cookiesToResponse, createTokenUser } from '../utils/index.js'
@@ -54,9 +55,9 @@ export const deleteUser = async (req, res) => {
 
 // get single user controller
 export const getSingleUser = async (req, res) => {
-  const user = await User.findOne({ _id: req.params.id }).select("-password");
+  const user = await User.findOne({ _id: req.params.id }).select("-password").populate('listings');
 
-  //checking if the user exists
+  // checking if the user exists
   if (!user) {
     throw new CustomError.NotFoundError(
       `no user exists with id : ${req.params.id}`
