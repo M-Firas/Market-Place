@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
 
-  console.log(currentUser?.user);
+  console.log(currentUser);
   const ListItem = ({ label, link }) => (
     <li className="hidden sm:inline">
       <Link

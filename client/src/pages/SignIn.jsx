@@ -33,13 +33,13 @@ export default function SignIn() {
           // withCredentials: true, //  Axios syntax
         },
       );
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+      console.log(res);
+      if (res.ok === false) {
+        dispatch(signInFailure("invalid user or password"));
         return;
       }
+      const data = await res.json();
       dispatch(signInSuccess(data));
-      console.log(data);
       navigate("/");
     } catch (error) {
       dispatch(signInFailure(error.message));
