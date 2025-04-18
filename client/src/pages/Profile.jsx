@@ -165,8 +165,8 @@ export default function Profile() {
     try {
       setShowListingError(false);
       const res = await fetch(
-        // `https://market-place-jj5i.onrender.com/api/user/${currentUser.user.userId}`,
-        `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/68015d3c0c510d8383595356`,
+        `https://market-place-jj5i.onrender.com/api/listing/my-listings`,
+        // `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/68015d3c0c510d8383595356`,
         {
           credentials: "include",
         },
@@ -178,8 +178,7 @@ export default function Profile() {
       }
 
       const data = await res.json();
-      console.log(data.listing);
-      setUserListing(data.listing);
+      setUserListing(data.listings);
     } catch (error) {
       setShowListingError(true);
     }
@@ -314,28 +313,37 @@ export default function Profile() {
       {showListingError && (
         <p className="mt-5 text-red-700">Error Showing Listing</p>
       )}
-      {userListing?._id && (
-        <div className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3">
-          <Link to={`/listing/${userListing._id}`}>
-            <img
-              src={userListing.imageUrls[0]}
-              className="h-20 w-20 object-contain"
-            />
-          </Link>
-          <Link
-            to={`/listing/${userListing._id}`}
-            className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
-          >
-            <p>{userListing.name}</p>
-          </Link>
-          <div className="flex flex-col items-center">
-            <button className="cursor-pointer text-red-700 uppercase">
-              Delelte
-            </button>
-            <button className="cursor-pointer text-green-700 uppercase">
-              Edit
-            </button>
-          </div>
+      {userListing.length > 0 && (
+        <div className="flex flex-col-reverse">
+          {userListing.map((list, index) => (
+            <div
+              key={index}
+              className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3"
+            >
+              <Link to={`/listing/${list._id}`}>
+                <img
+                  src={list.imageUrls[0]}
+                  className="h-20 w-20 object-contain"
+                />
+              </Link>
+              <Link
+                to={`/listing/${list._id}`}
+                className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
+              >
+                <p>{list.name}</p>
+              </Link>
+              <div className="flex flex-col items-center">
+                <button className="cursor-pointer text-red-700 uppercase">
+                  Delelte
+                </button>
+                <Link to={`/update-lsiting/${list._id}`}>
+                  <button className="cursor-pointer text-green-700 uppercase">
+                    Edit
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

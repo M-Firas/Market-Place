@@ -136,7 +136,7 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      navigate(`/listing/${currentUser.user.userId}`);
+      navigate("/profile");
     } catch (error) {
       setError(error.message);
       setIsLoading(false);
