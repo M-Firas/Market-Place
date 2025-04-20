@@ -14,8 +14,8 @@ export const Search = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [listings, setListings] = useState([]);
+  const [showMore, setShowMore] = useState(false);
 
-  console.log(listings);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,11 +50,17 @@ export const Search = () => {
 
     const fetchListings = async () => {
       setIsLoading(true);
+      setShowMore(false);
       const searchQuery = urlParams.toString();
       const res = await fetch(
         `https://market-place-jj5i.onrender.com/api/listing/get?${searchQuery}`,
       );
       const data = await res.json();
+      if (data.listings.length > 8) {
+        setShowMore(true);
+      } else {
+        setShowMore(false);
+      }
       setListings(data.listings);
       setIsLoading(false);
     };
@@ -108,6 +114,22 @@ export const Search = () => {
     urlParams.set("order", sidebarData.order);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
+  };
+
+  const onShowMoreClick = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(
+      `https://market-place-jj5i.onrender.com/api/listing/get?${searchQuery}`,
+    );
+    const data = await res.json();
+    if (data.listings.length < 9) {
+      setShowMore(false);
+    }
+    setListings([...listings, ...data.listings]);
   };
 
   return (
@@ -235,6 +257,15 @@ export const Search = () => {
             listings.map((listing) => (
               <ListingItem key={listing._id} listing={listing} />
             ))}
+
+          {showMore && (
+            <button
+              onClick={onShowMoreClick}
+              className="w-full p-7 text-center text-green-700 hover:underline"
+            >
+              Show more
+            </button>
+          )}
         </div>
       </div>
     </div>
