@@ -110,8 +110,8 @@ export default function Listing() {
                 <p className="w-full max-w-[200px] rounded-md bg-green-900 p-1 text-center text-white">
                   $
                   {+listing.listing.regularPrice -
-                    +listing.listing.discountPrice}
-                  Discount
+                    +listing.listing.discountPrice}{" "}
+                  OFF
                 </p>
               )}
             </div>
