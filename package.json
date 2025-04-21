@@ -3,14 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  "homepage": "https://your-username.github.io/your-repo-name",
   "scripts": {
     "dev": "nodemon api/index.js",
-    "start": "node api/index.js",
-    "build": "vite build",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "start": "node api/index.js"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +19,6 @@
     "express": "^5.1.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.5.0",
-    "gh-pages": "^6.3.0",
     "helmet": "^8.1.0",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
