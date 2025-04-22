@@ -34,7 +34,6 @@ export default function Listing() {
 
         const data = await res.json();
         setListing(data);
-        console.log(data);
       } catch (error) {
         setError(true);
       } finally {

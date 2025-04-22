@@ -129,7 +129,7 @@ export default function CreateListing() {
           body: JSON.stringify(formData),
         },
       );
-      console.log(res);
+
       const data = await res.json();
       setIsLoading(false);
 
