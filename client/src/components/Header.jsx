@@ -8,7 +8,6 @@ export default function Header() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log(currentUser);
   const ListItem = ({ label, link }) => (
     <li className="hidden sm:inline">
       <Link

@@ -180,7 +180,6 @@ export default function Profile() {
           credentials: "include",
         },
       );
-      console.log(res);
 
       if (!res.ok) {
         // throw new Error("Failed to fetch listing");
@@ -364,7 +363,7 @@ export default function Profile() {
       {deleteLoading ? (
         <p>List Is Updating...</p>
       ) : (
-        userListing.length > 0 && (
+        userListing?.length > 0 && (
           <div className="flex flex-col-reverse">
             {userListing.map((list, index) => (
               <div

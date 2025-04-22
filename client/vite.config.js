@@ -13,7 +13,6 @@ export default defineConfig({
   //     },
   //   },
   // },
-  base: "/Market-Place/",
 
   plugins: [react(), tailwindcss()],
 });
