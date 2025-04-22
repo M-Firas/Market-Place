@@ -14,7 +14,7 @@ export default function Header() {
         to={link}
         className="cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85"
       >
-        {label === "Signin" && currentUser?.user ? (
+        {label === "Login" && currentUser?.user ? (
           <img
             className="h-7 w-7 rounded-xl object-cover"
             src={currentUser.user.avatar}
@@ -74,7 +74,7 @@ export default function Header() {
         <ul className="flex gap-4">
           <ListItem label={"Home"} link="/" />
           <ListItem label={"About"} link="/about" />
-          <ListItem label={"Signin"} link="/profile" />
+          <ListItem label={"Login"} link="/profile" />
         </ul>
       </div>
     </header>

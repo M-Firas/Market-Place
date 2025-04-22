@@ -269,7 +269,7 @@ export default function Profile() {
         </div>
         <UserInputs
           type="text"
-          placeholder={"username"}
+          placeholder={"Username"}
           id={"username"}
           defaultVal={
             currentUser?.user?.username ? currentUser?.user?.username : ""
@@ -279,14 +279,14 @@ export default function Profile() {
         />
         <UserInputs
           type="text"
-          placeholder={"email"}
+          placeholder={"Email"}
           id={"email"}
           defaultVal={currentUser?.user?.email ? currentUser?.user?.email : ""}
           read
         />
         <UserInputs
           type="password"
-          placeholder={"password"}
+          placeholder={"Password"}
           id={"password"}
           default={""}
           formData={formData}
@@ -295,7 +295,7 @@ export default function Profile() {
         />
         <UserInputs
           type="password"
-          placeholder={"confirmpassword"}
+          placeholder={"Confirm Password"}
           id={"confirmpassword"}
           formData={formData}
           setFormData={setFormData}

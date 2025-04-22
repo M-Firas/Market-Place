@@ -39,21 +39,21 @@ export default function SignUp() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <UserInputs
           type="text"
-          placeholder="username"
+          placeholder="Username"
           id="username"
           formData={formData}
           setFormData={setFormData}
         />
         <UserInputs
           type="text"
-          placeholder="email"
+          placeholder="Email"
           id="email"
           formData={formData}
           setFormData={setFormData}
         />
         <UserInputs
           type="password"
-          placeholder="password"
+          placeholder="Password"
           id="password"
           formData={formData}
           setFormData={setFormData}
