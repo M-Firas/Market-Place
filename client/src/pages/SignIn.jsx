@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // redux
 import { useDispatch, useSelector } from "react-redux";
-import { signInStart, signInSuccess } from "../app/user/userSlice";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../app/user/userSlice";
 import { showPopup } from "../app/popup/popupSlice";
 // components
 import UserInputs from "../components/UserInputs";
@@ -30,11 +34,12 @@ export default function SignIn() {
           // withCredentials: true, //  Axios syntax
         },
       );
-      console.log(res);
+
       if (res.ok === false) {
         dispatch(
           showPopup({ message: "invalid user or password", type: "error" }),
         );
+        dispatch(signInFailure());
         return;
       }
       const data = await res.json();
@@ -42,6 +47,7 @@ export default function SignIn() {
       navigate("/");
     } catch (error) {
       dispatch(showPopup({ message: error.message, type: "error" }));
+      dispatch(signInFailure());
     }
   };
 
