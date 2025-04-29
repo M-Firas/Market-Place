@@ -13,6 +13,8 @@ import UpdateListing from "./pages/UpdateListing";
 import Listing from "./pages/Listing";
 import PopupInfo from "./app/popup/PopupInfo";
 import { Search } from "./pages/Search";
+import Account from "./layouts/Account";
+import MyListings from "./pages/MyListings";
 
 function App() {
   return (
@@ -28,8 +30,11 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/listing/:listingId" element={<Listing />} />
           <Route element={<PrivateRoute />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/create-listing" element={<CreateListing />} />
+            <Route path="/account" element={<Account />}>
+              <Route index element={<Profile />} />
+              <Route path="listings" element={<MyListings />} />
+              <Route path="create-listing" element={<CreateListing />} />
+            </Route>
             <Route
               path="/update-lsiting/:listingId"
               element={<UpdateListing />}
