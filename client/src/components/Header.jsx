@@ -74,7 +74,7 @@ export default function Header() {
         <ul className="flex gap-4">
           <ListItem label={"Home"} link="/" />
           <ListItem label={"About"} link="/about" />
-          <ListItem label={"Login"} link="/profile" />
+          <ListItem label={"Login"} link="/account" />
         </ul>
       </div>
     </header>

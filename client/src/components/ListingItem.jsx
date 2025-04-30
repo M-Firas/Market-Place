@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
-const ListingItem = ({ listing }) => {
+const ListingItem = ({ listing, showActions, onDelete }) => {
   return (
     <div className="w-full overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg sm:w-[330px]">
       <Link to={`/listing/${listing._id}`}>
@@ -49,6 +49,21 @@ const ListingItem = ({ listing }) => {
           </div>
         </div>
       </Link>
+      {showActions && (
+        <div className="flex gap-4 p-2">
+          <Link to={`/update-lsiting/${listing._id}`}>
+            <button className="flex cursor-pointer items-center rounded-lg bg-yellow-500 p-1 text-white">
+              <Icon icon="bx:pencil" className="mr-1 text-white" /> Edit
+            </button>
+          </Link>
+          <button
+            onClick={onDelete}
+            className="flex cursor-pointer items-center rounded-lg bg-red-500 p-1 text-white"
+          >
+            <Icon icon="bx:trash" className="mr-1 text-white" /> Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };

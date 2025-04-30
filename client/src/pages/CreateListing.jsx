@@ -136,7 +136,7 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      navigate("/profile");
+      navigate("/account");
     } catch (error) {
       setError(error.message);
       setIsLoading(false);
@@ -183,10 +183,11 @@ export default function CreateListing() {
   );
 
   return (
-    <main className="mx-auto max-w-4xl p-3">
-      <h1 className="my-7 text-center text-3xl font-semibold">
-        Create A Listing
-      </h1>
+    <main className="mx-auto max-w-6xl p-3">
+      <h1 className="mt-2 text-3xl font-semibold">Create New Listing</h1>
+      <p className="mb-4 text-sm font-light text-slate-700">
+        Create yourself a New Listing
+      </p>
       <form
         onSubmit={handleSubmit}
         className={"flex flex-col gap-4 sm:flex-row"}

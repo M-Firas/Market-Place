@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { useRef } from "react";
+import React, { useState, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   uploadUserStart,
   uploadUserSuccess,
@@ -13,32 +12,27 @@ import {
   signOutUserFailuer,
   signOutUserSuccess,
 } from "../app/user/userSlice";
-import { useDispatch } from "react-redux";
 import { showPopup } from "../app/popup/popupSlice";
-// compoentes
 import UserInputs from "../components/UserInputs";
+import { Icon } from "@iconify/react";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentUser, isLoading, error } = useSelector((state) => state.user);
+  const { currentUser, isLoading } = useSelector((state) => state.user);
   const fileRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    username: currentUser?.user?.username,
-    email: currentUser?.user?.email,
-    avatar: currentUser?.user?.avatar,
+    username: currentUser?.user?.username || "",
+    email: currentUser?.user?.email || "",
+    avatar: currentUser?.user?.avatar || "",
+    password: "",
+    confirmpassword: "",
   });
 
-  const [imageFile, setImageFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
-  const [fileUplaodError, setFileUploadError] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [showListingError, setShowListingError] = useState(false);
-  const [userListing, setUserListing] = useState([]);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const hanldeFileUplaod = async (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -53,9 +47,12 @@ export default function Profile() {
     try {
       const base64Image = await toBase64(file);
       const imageUrl = await uploadImageToCloudinary(base64Image);
-      setImageFile(imageUrl);
+      dispatch(
+        showPopup({ message: "Image successfully uploaded", type: "success" }),
+      );
       setFormData((prev) => ({ ...prev, avatar: imageUrl }));
     } catch (error) {
+      dispatch(showPopup({ message: "Image upload failed", type: "error" }));
       console.error("Image upload failed:", error);
     }
   };
@@ -87,6 +84,7 @@ export default function Profile() {
           reject(new Error("Upload failed"));
         }
       };
+
       xhr.onerror = () => reject(new Error("Network error"));
       xhr.send(data);
     });
@@ -94,17 +92,24 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      dispatch(uploadUserStart());
 
+    if (
+      (formData.password || formData.confirmpassword) &&
+      formData.password !== formData.confirmpassword
+    ) {
+      dispatch(showPopup({ message: "Passwords do not match", type: "error" }));
+      return;
+    }
+
+    dispatch(uploadUserStart());
+
+    try {
       const response = await fetch(
         "https://market-place-jj5i.onrender.com/api/user/updateUser",
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         },
       );
@@ -112,43 +117,48 @@ export default function Profile() {
       const data = await response.json();
 
       if (!response.ok) {
-        // dispatch(uploadUserFailuer(data.msg));
+        dispatch(uploadUserFailuer(data.msg));
         dispatch(showPopup({ message: data.msg, type: "error" }));
         return;
       }
+
       dispatch(uploadUserSuccess(data));
       dispatch(
-        showPopup({ message: "info updated successfully", type: "success" }),
-      ),
-        setUpdateSuccess(true);
+        showPopup({
+          message: data.msg || "Profile updated successfully!",
+          type: "success",
+        }),
+      );
     } catch (error) {
-      // console.error("Submission error:", error);
-      // dispatch(uploadUserFailuer(error.message));
+      dispatch(uploadUserFailuer(error.message));
       dispatch(showPopup({ message: error.message, type: "error" }));
     }
   };
 
   const handleDeleteUser = async () => {
     try {
-      dispatch(deleteUserStart);
+      dispatch(deleteUserStart());
       const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/user/deleteUser`,
+        "https://market-place-jj5i.onrender.com/api/user/deleteUser",
         {
           method: "DELETE",
           credentials: "include",
         },
       );
-      const data = res.json();
+
+      const data = await res.json();
+
       if (data.success === false) {
         dispatch(deleteUserFailuer(data.message));
+        dispatch(showPopup({ message: data.message, type: "error" }));
         return;
       }
+
       dispatch(deleteUserSuccess());
       navigate("/signin");
     } catch (error) {
-      // dispatch(deleteUserFailuer(error.message));
+      dispatch(deleteUserFailuer(error.message));
       dispatch(showPopup({ message: error.message, type: "error" }));
-      // console.log(error.message);
     }
   };
 
@@ -156,160 +166,174 @@ export default function Profile() {
     try {
       dispatch(signOutUserStart());
       const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/auth/login",
-      );
-      const data = res.json();
-      if (data.success === false) {
-        dispatch(signOutUserFailuer(data.message));
-        dispatch(showPopup({ message: data.mesg, type: "error" }));
-        return;
-      }
-      dispatch(signOutUserSuccess());
-    } catch (error) {
-      // dispatch(signOutUserFailuer(error.message));
-      dispatch(showPopup({ message: error.message, type: "error" }));
-    }
-  };
-
-  const handleShowListing = async () => {
-    try {
-      setShowListingError(false);
-      const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/listing/my-listings`,
-        {
-          credentials: "include",
-        },
-      );
-
-      if (!res.ok) {
-        // throw new Error("Failed to fetch listing");
-        dispatch(showPopup({ message: res.msg, type: "error" }));
-      }
-
-      const data = await res.json();
-      setUserListing(data.listings);
-      dispatch(
-        showPopup({
-          message: "Listing uploaded successfully",
-          type: "success",
-        }),
-      );
-    } catch (error) {
-      setShowListingError(true);
-      dispatch(showPopup({ message: error.message, type: "error" }));
-    }
-  };
-
-  const handleDeleteListing = async (listId) => {
-    setDeleteLoading(true);
-    try {
-      const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/listing/delete/${listId}`,
+        "https://market-place-jj5i.onrender.com/api/auth/logout",
         {
           method: "DELETE",
           credentials: "include",
         },
       );
-      if (res.ok === false) {
-        setDeleteLoading(false);
-        console.log(res.msg);
-        dispatch(showPopup({ message: res.msg, type: "error" }));
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(signOutUserFailuer(data.message));
+        dispatch(showPopup({ message: data.message, type: "error" }));
         return;
       }
-      dispatch(
-        showPopup({ message: "Listing deleted successfully", type: "success" }),
-      );
-      setDeleteLoading(false);
 
-      setTimeout(() => {
-        handleShowListing();
-      }, 3500);
+      dispatch(signOutUserSuccess());
+      navigate("/signin");
     } catch (error) {
-      setDeleteLoading(false);
+      dispatch(signOutUserFailuer(error.message));
       dispatch(showPopup({ message: error.message, type: "error" }));
-      console.log(error);
     }
   };
 
   return (
-    <div className="mx-auto max-w-lg p-3 select-none">
-      <h1 className="my-7 text-center text-3xl font-semibold">profile</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="file"
-          ref={fileRef}
-          hidden
-          accept="image/*"
-          onChange={hanldeFileUplaod}
-        />
-        <img
-          src={imageFile ? imageFile : currentUser?.user?.avatar}
-          alt="profile"
-          onClick={() => fileRef.current.click()}
-          className="h-24 w-24 cursor-pointer self-center rounded-full object-cover"
-        />
-        <div className="self-center text-sm">
-          {fileUplaodError ? (
-            <span className="text-red-700">Error Image Upload</span>
-          ) : filePerc > 0 && filePerc < 100 ? (
-            <div className={`relative -z-10 h-2 w-30 rounded-2xl bg-slate-500`}>
-              <div
-                className="absolute h-2 rounded-2xl bg-green-700"
-                style={{
-                  width: `${filePerc}%`,
-                  transition: "width 0.3s ease",
-                }}
-              ></div>
-            </div>
-          ) : filePerc === 100 ? (
-            <span className="text-green-700">Image Successfuly Uploaded</span>
-          ) : (
-            " "
-          )}
+    <div className="mx-auto max-w-6xl p-3 select-none">
+      <div className="flex flex-row justify-between">
+        <div>
+          <h1 className="mt-2 text-3xl font-semibold">Profile</h1>
+          <p className="mb-4 text-sm font-light text-slate-700">
+            View, Edit or Delete Your Profile
+          </p>
         </div>
-        <UserInputs
-          type="text"
-          placeholder={"Username"}
-          id={"username"}
-          defaultVal={
-            currentUser?.user?.username ? currentUser?.user?.username : ""
-          }
-          formData={formData}
-          setFormData={setFormData}
-        />
-        <UserInputs
-          type="text"
-          placeholder={"Email"}
-          id={"email"}
-          defaultVal={currentUser?.user?.email ? currentUser?.user?.email : ""}
-          read
-        />
-        <UserInputs
-          type="password"
-          placeholder={"Password"}
-          id={"password"}
-          default={""}
-          formData={formData}
-          setFormData={setFormData}
-          notRequired
-        />
-        <UserInputs
-          type="password"
-          placeholder={"Confirm Password"}
-          id={"confirmpassword"}
-          formData={formData}
-          setFormData={setFormData}
-          notRequired
-        />
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={handleSignOut}
+            className="md:text-md flex cursor-pointer items-center rounded-md bg-slate-700 p-2 text-sm font-light text-white"
+          >
+            <Icon
+              icon="bx:log-out"
+              className="mr-1 h-3 w-3 text-white md:h-5 md:w-5"
+            />{" "}
+            Sign out
+          </button>
+          <button
+            onClick={handleDeleteUser}
+            className="md:text-md flex cursor-pointer items-center rounded-md bg-red-500 p-2 text-sm font-light text-white"
+          >
+            <Icon
+              icon="bx:trash"
+              className="mr-1 h-3 w-3 text-white md:h-5 md:w-5"
+            />{" "}
+            Delete account
+          </button>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <h2 className="text-slate-600">Personal Information</h2>
+        <div className="mb-4 flex items-center justify-between rounded-lg bg-slate-200 p-4 backdrop-blur-sm backdrop-filter">
+          <div className="flex w-1/2 flex-col items-center">
+            <div className="group relative w-fit self-center">
+              <input
+                type="file"
+                ref={fileRef}
+                hidden
+                accept="image/*"
+                onChange={handleFileUpload}
+              />
+              <img
+                src={formData.avatar}
+                alt="profile"
+                onClick={() => fileRef.current.click()}
+                className="h-24 w-24 cursor-pointer rounded-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => fileRef.current.click()}
+                className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <Icon icon="bx:pencil" className="h-7 w-7 text-white" />
+              </button>
+            </div>
+            <p className="mt-1 text-center text-sm font-light text-slate-700">
+              Avatar
+            </p>
+            {filePerc > 0 && filePerc < 100 && (
+              <div className="relative mt-2 h-2 w-30 rounded-2xl bg-slate-500">
+                <div
+                  className="absolute h-2 rounded-2xl bg-green-700"
+                  style={{
+                    width: `${filePerc}%`,
+                    transition: "width 0.3s ease",
+                  }}
+                ></div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex w-1/2 flex-col gap-3">
+            <div>
+              <p className="mb-0.5 ml-1 text-sm font-light text-slate-700">
+                Username
+              </p>
+              <UserInputs
+                type="text"
+                placeholder="Username"
+                id="username"
+                defaultVal={formData.username}
+                formData={formData}
+                setFormData={setFormData}
+              />
+            </div>
+            <div>
+              <p className="mb-0.5 ml-1 text-sm font-light text-slate-700">
+                Email
+              </p>
+              <UserInputs
+                type="text"
+                placeholder="Email"
+                id="email"
+                defaultVal={formData.email}
+                read
+              />
+            </div>
+          </div>
+        </div>
+
+        <h2 className="mb-2 text-slate-600">Password</h2>
+        <div className="mb-4 flex items-center rounded-lg bg-slate-200 p-4 backdrop-blur-sm backdrop-filter">
+          <div className="flex w-full gap-3">
+            <div className="w-1/2">
+              <p className="mb-0.5 ml-1 text-sm font-light text-slate-700">
+                Password
+              </p>
+              <UserInputs
+                type="password"
+                placeholder="Password"
+                id="password"
+                formData={formData}
+                setFormData={setFormData}
+                notRequired
+              />
+            </div>
+            <div className="w-1/2">
+              <p className="mb-0.5 ml-1 text-sm font-light text-slate-700">
+                Confirm Password
+              </p>
+              <UserInputs
+                type="password"
+                placeholder="Confirm Password"
+                id="confirmpassword"
+                formData={formData}
+                setFormData={setFormData}
+                notRequired
+              />
+            </div>
+          </div>
+        </div>
+
         <button
           disabled={isLoading}
-          className="cursor-pointer rounded-lg bg-slate-800 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80"
+          className="w-29 cursor-pointer rounded-lg bg-slate-800 p-3 text-white uppercase hover:opacity-80 disabled:opacity-80"
         >
           {isLoading ? (
             <svg
               aria-hidden="true"
               role="status"
-              className="me-3 inline h-4 w-4 animate-spin text-white"
+              className="inline h-4 w-4 animate-spin text-white"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -327,79 +351,7 @@ export default function Profile() {
             "update"
           )}
         </button>
-        <Link to="/create-listing">
-          <button className="w-full cursor-pointer rounded-lg bg-green-700 p-3 text-white capitalize hover:opacity-80">
-            create listing
-          </button>
-        </Link>
       </form>
-      <div className="mt-5 flex justify-between">
-        <span
-          onClick={handleDeleteUser}
-          className="cursor-pointer text-red-700 capitalize"
-        >
-          delete account
-        </span>
-        <span
-          onClick={handleSignOut}
-          className="cursor-pointer text-red-700 capitalize"
-        >
-          sign out
-        </span>
-      </div>
-      <p className="mt-5 text-sm text-green-700">
-        {updateSuccess && "User Is Updated Successfuly "}
-      </p>
-      <p className="mt-5 text-sm text-red-700">{error ? error : ""}</p>
-      <button
-        onClick={handleShowListing}
-        className="w-full cursor-pointer text-green-700"
-      >
-        Show Listing
-      </button>
-      {showListingError && (
-        <p className="mt-5 text-red-700">Error Showing Listing</p>
-      )}
-      {deleteLoading ? (
-        <p>List Is Updating...</p>
-      ) : (
-        userListing?.length > 0 && (
-          <div className="flex flex-col-reverse">
-            {userListing.map((list, index) => (
-              <div
-                key={index}
-                className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-[#ddd] p-3"
-              >
-                <Link to={`/listing/${list._id}`}>
-                  <img
-                    src={list.imageUrls[0]}
-                    className="h-20 w-20 object-contain"
-                  />
-                </Link>
-                <Link
-                  to={`/listing/${list._id}`}
-                  className="flex-1 truncate font-semibold text-slate-700 hover:opacity-80"
-                >
-                  <p>{list.name}</p>
-                </Link>
-                <div className="flex flex-col items-center">
-                  <button
-                    onClick={() => handleDeleteListing(list._id)}
-                    className="cursor-pointer text-red-700 uppercase"
-                  >
-                    Delelte
-                  </button>
-                  <Link to={`/update-lsiting/${list._id}`}>
-                    <button className="cursor-pointer text-green-700 uppercase">
-                      Edit
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-      )}
     </div>
   );
 }
