@@ -53,6 +53,12 @@ export const deleteUser = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'User account deleted successfully' });
 }
 
+//get current user controller
+export const getCurrentUser = async (req, res) => {
+  res.status(StatusCodes.OK).json({ user: req.user });
+};
+
+
 // get single user controller
 export const getSingleUser = async (req, res) => {
   const user = await User.findOne({ _id: req.params.id }).select("-password").populate('listings');
