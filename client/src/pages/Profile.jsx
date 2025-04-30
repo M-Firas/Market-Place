@@ -201,21 +201,21 @@ export default function Profile() {
         <div className="flex flex-col gap-1">
           <button
             onClick={handleSignOut}
-            className="md:text-md flex cursor-pointer items-center rounded-md bg-slate-700 p-2 text-sm font-light text-white"
+            className="md:text-md flex cursor-pointer items-center rounded-md bg-slate-200 p-2 text-sm font-light text-slate-700 hover:opacity-80"
           >
             <Icon
               icon="bx:log-out"
-              className="mr-1 h-3 w-3 text-white md:h-5 md:w-5"
+              className="mr-1 h-3 w-3 text-slate-700 md:h-5 md:w-5"
             />{" "}
             Sign out
           </button>
           <button
             onClick={handleDeleteUser}
-            className="md:text-md flex cursor-pointer items-center rounded-md bg-red-500 p-2 text-sm font-light text-white"
+            className="md:text-md flex cursor-pointer items-center rounded-md bg-slate-200 p-2 text-sm font-light text-red-500 hover:opacity-80"
           >
             <Icon
               icon="bx:trash"
-              className="mr-1 h-3 w-3 text-white md:h-5 md:w-5"
+              className="mr-1 h-3 w-3 text-red-500 md:h-5 md:w-5"
             />{" "}
             Delete account
           </button>

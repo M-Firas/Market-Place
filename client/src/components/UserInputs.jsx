@@ -29,7 +29,7 @@ export default function UserInputs({
         id={id}
         defaultValue={defaultVal}
         readOnly={read ? true : false}
-        className={`w-full rounded-lg border border-[#ddd] bg-white p-3 outline-none ${read && "cursor-default"} `}
+        className={`w-full rounded-lg border border-[#ddd] p-3 outline-none ${read ? "cursor-not-allowed bg-gray-300" : "bg-white"}`}
         onChange={handleChange}
         required={!notRequired ? true : false}
       />
