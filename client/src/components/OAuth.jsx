@@ -4,6 +4,7 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../app/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 export default function OAuth() {
   const dispatch = useDispatch();
@@ -43,9 +44,10 @@ export default function OAuth() {
     <button
       type="button"
       onClick={handleGoogleClick}
-      className="cursor-pointer rounded-lg bg-red-700 p-3 text-white uppercase hover:opacity-80"
+      // className="cursor-pointer rounded-lg bg-red-700 p-3 text-white uppercase hover:opacity-80"
+      className="flex h-20 w-30 cursor-pointer items-center justify-center self-center rounded-xl border-1 border-[#ddd] bg-[#f1f5f1] text-3xl text-rose-500 hover:opacity-70"
     >
-      Continue with google
+      <Icon icon={"mdi:google"} />+
     </button>
   );
 }

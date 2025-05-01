@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+@import "tailwindcss/utilities";
 
 /* Your custom classes can go here */
 @theme {
@@ -26,6 +27,20 @@
     100% {
       opacity: 0;
       right: -200px;
+    }
+  }
+}
+
+@theme {
+  --animate-shapeFade-out: shapeFade-out 1s ease-out forwards;
+  @keyframes shapeFade-out {
+    0% {
+      opacity: 0;
+      margin-left: -50px;
+    }
+    100% {
+      opacity: 1;
+      margin-left: 0px;
     }
   }
 }
