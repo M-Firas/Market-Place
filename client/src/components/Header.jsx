@@ -9,7 +9,7 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const ListItem = ({ label, link }) => (
-    <li className="hidden sm:inline">
+    <li className={`${label === "Login" ? "inline" : "hidden"} sm:inline`}>
       <Link
         to={link}
         className="cursor-pointer text-slate-950 hover:text-slate-700 hover:opacity-85"
