@@ -36,12 +36,12 @@ export default function SignUp() {
   };
 
   return (
-    <div className="relative flex h-[calc(100vh_-_72px)] justify-between p-12">
+    <div className="relative flex h-[calc(100vh_-_72px)] flex-col gap-[150px] p-12 lg:flex-row lg:justify-between lg:gap-0">
       <div className="fixed top-[72px] left-0 -z-1 ml-0">
         <img src={bubles} alt="" />
       </div>
-      <div className="flex h-full w-[25%] flex-col justify-center p-12">
-        <h1 className="animate-shapeFade-out text-4xl font-semibold text-slate-800 opacity-0">
+      <div className="flex flex-col lg:h-full lg:w-[25%] lg:justify-center">
+        <h1 className="animate-shapeFade-out text-4xl font-semibold text-slate-800 opacity-0 md:text-2xl lg:text-4xl">
           Market Place
         </h1>
         <p
@@ -52,13 +52,13 @@ export default function SignUp() {
           Reachage Direct
         </p>
         <p
-          className="animate-shapeFade-out mt-8 text-xl font-normal text-slate-700 opacity-0"
+          className="animate-shapeFade-out mt-8 text-xl font-normal text-slate-700 opacity-0 md:text-lg lg:text-xl"
           style={{ animationDelay: "200ms" }}
         >
           If you have an account You
         </p>
         <p
-          className="animate-shapeFade-out text-xl font-normal opacity-0"
+          className="animate-shapeFade-out text-xl font-normal opacity-0 md:text-lg lg:text-xl"
           style={{ animationDelay: "300ms" }}
         >
           can
@@ -68,12 +68,12 @@ export default function SignUp() {
         </p>
       </div>
       <div
-        className="animate-shapeFade-out flex w-[30%] opacity-0"
+        className="animate-shapeFade-out absolute top-[30px] right-0 -z-1 h-80 w-80 opacity-0 md:right-[200px] lg:static lg:flex lg:h-full lg:w-[30%] lg:items-center lg:justify-center"
         style={{ animationDelay: "500ms" }}
       >
         <img src={figure} alt="" className="object-contain" />
       </div>
-      <div className="flex h-full w-[35%] items-center">
+      <div className="flex w-full lg:mt-3 lg:h-full lg:w-[35%] lg:items-center">
         <form
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-6 py-2"
