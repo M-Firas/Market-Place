@@ -6,6 +6,9 @@ import {
   signInStart,
   signInSuccess,
   signInFailure,
+  currentUserStart,
+  currentUserSuccess,
+  currentUserFailure,
 } from "../app/user/userSlice";
 import { showPopup } from "../app/popup/popupSlice";
 // components
@@ -24,6 +27,7 @@ export default function SignIn() {
     e.preventDefault();
     try {
       dispatch(signInStart());
+
       const res = await fetch(
         "https://market-place-jj5i.onrender.com/api/auth/login",
         {
@@ -33,19 +37,41 @@ export default function SignIn() {
           },
           body: JSON.stringify(formData),
           credentials: "include",
-          // withCredentials: true, //  Axios syntax
         },
       );
 
-      if (res.ok === false) {
+      if (!res.ok) {
         dispatch(
-          showPopup({ message: "invalid user or password", type: "error" }),
+          showPopup({ message: "Invalid email or password", type: "error" }),
         );
         dispatch(signInFailure());
         return;
       }
-      const data = await res.json();
-      dispatch(signInSuccess(data));
+
+      const loginData = await res.json();
+      dispatch(signInSuccess(loginData));
+
+      // Fetching the actual current user from the backend after signing in (based on the cookie)
+      dispatch(currentUserStart());
+      const userRes = await fetch(
+        "https://market-place-jj5i.onrender.com/api/user/getCurrentUser",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        },
+      );
+
+      if (!userRes.ok) {
+        dispatch(currentUserFailure("Failed to get user data"));
+        return;
+      }
+
+      const userData = await userRes.json();
+      dispatch(currentUserSuccess(userData));
+
       navigate("/");
     } catch (error) {
       dispatch(showPopup({ message: error.message, type: "error" }));
