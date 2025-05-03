@@ -2,7 +2,12 @@ import React from "react";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
-import { signInSuccess } from "../app/user/userSlice";
+import {
+  signInSuccess,
+  currentUserStart,
+  currentUserSuccess,
+  currentUserFailure,
+} from "../app/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
@@ -35,6 +40,27 @@ export default function OAuth() {
       );
       const data = await res.json();
       dispatch(signInSuccess(data));
+      // Fetching the actual current user from the backend after signing in (based on the cookie)
+      dispatch(currentUserStart());
+      const userRes = await fetch(
+        "https://market-place-jj5i.onrender.com/api/user/getCurrentUser",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        },
+      );
+
+      if (!userRes.ok) {
+        dispatch(currentUserFailure("Failed to get user data"));
+        return;
+      }
+
+      const userData = await userRes.json();
+      dispatch(currentUserSuccess(userData));
+
       navigate("/");
     } catch (error) {
       console.log("could not sign in with google", error);
