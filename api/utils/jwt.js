@@ -18,7 +18,7 @@ const cookiesToResponse = ({ res, user }) => {
         httpOnly: true,
         expires: new Date(Date.now() + oneDay),
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
+        sameSite: 'none',
         signed: true,
     })
 }
