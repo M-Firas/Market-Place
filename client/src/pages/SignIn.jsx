@@ -28,17 +28,14 @@ export default function SignIn() {
     try {
       dispatch(signInStart());
 
-      const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-          credentials: "include",
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(formData),
+      });
 
       if (!res.ok) {
         dispatch(
