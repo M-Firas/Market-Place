@@ -76,7 +76,7 @@ const MyListings = () => {
       <p className="mb-4 text-sm font-light text-slate-700">
         View, Edit or Delete Your Listings
       </p>
-      <div className="flex flex-wrap gap-4 p-7">
+      <div className="flex flex-wrap gap-4">
         {loading && (
           <p className="w-full text-center text-xl text-slate-700">
             Loading...

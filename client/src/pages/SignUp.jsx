@@ -126,7 +126,7 @@ export default function SignUp() {
                 />
               </svg>
             ) : (
-              "Sign In"
+              "Sign Up"
             )}
           </button>
           <div className="relative flex justify-center before:absolute before:top-1/2 before:left-1/2 before:-z-1 before:h-[1px] before:w-full before:-translate-1/2 before:bg-[#777]">

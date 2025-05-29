@@ -150,7 +150,7 @@ export default function SignIn() {
           </button>
           <div className="relative flex justify-center before:absolute before:top-1/2 before:left-1/2 before:-z-1 before:h-[1px] before:w-full before:-translate-1/2 before:bg-[#777]">
             <p className="z-10 w-fit bg-[#f1f5f1] p-2 text-[#777]">
-              Or Continus with
+              Or Continue with
             </p>
           </div>
           <OAuth />
