@@ -104,15 +104,12 @@ export default function Profile() {
     dispatch(uploadUserStart());
 
     try {
-      const response = await fetch(
-        "https://market-place-jj5i.onrender.com/api/user/updateUser",
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        },
-      );
+      const response = await fetch("/api/user/updateUser", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 
@@ -138,13 +135,10 @@ export default function Profile() {
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/user/deleteUser",
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch("/api/user/deleteUser", {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       const data = await res.json();
 
@@ -165,13 +159,10 @@ export default function Profile() {
   const handleSignOut = async () => {
     try {
       dispatch(signOutUserStart());
-      const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/auth/logout",
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch("/api/auth/logout", {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       const data = await res.json();
 

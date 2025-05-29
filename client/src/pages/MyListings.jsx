@@ -11,12 +11,9 @@ const MyListings = () => {
 
   const handleShowListing = async () => {
     try {
-      const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/listing/my-listings`,
-        {
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`/api/listing/my-listings`, {
+        credentials: "include",
+      });
 
       const data = await res.json();
 
@@ -45,13 +42,10 @@ const MyListings = () => {
   const handleDelete = async (listId) => {
     setDeleteLoading(true);
     try {
-      const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/listing/delete/${listId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`/api/listing/delete/${listId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (!res.ok) {
         const data = await res.json();

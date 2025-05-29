@@ -160,17 +160,14 @@ export default function UpdateListing() {
       setIsLoading(true);
       setError(false);
 
-      const res = await fetch(
-        `https://market-place-jj5i.onrender.com/api/listing/update/${params.listingId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
+      const res = await fetch(`/api/listing/update/${params.listingId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
       console.log(res);
       const data = await res.json();
       setIsLoading(false);
@@ -267,7 +264,7 @@ export default function UpdateListing() {
       setPageLoading(true);
       try {
         const res = await fetch(
-          `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/${params.listingId}`,
+          `/api/listing/getSingleListing/${params.listingId}`,
           {
             credentials: "include",
           },

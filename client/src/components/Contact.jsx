@@ -15,15 +15,10 @@ export default function Contact({ listing }) {
     setIsLoading(true);
     const fetchLandLord = async () => {
       try {
-        const res = await fetch(
-          `https://market-place-jj5i.onrender.com/api/user/${
-            listing.listing.userRef
-          }`,
-          {
-            method: "GET",
-            credentials: "include",
-          },
-        );
+        const res = await fetch(`/api/user/${listing.listing.userRef}`, {
+          method: "GET",
+          credentials: "include",
+        });
         if (res.ok === false) {
           setIsLoading(false);
           setError(res.msg);

@@ -151,17 +151,14 @@ export default function CreateListing() {
       setIsLoading(true);
       setError(false);
 
-      const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/listing/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
 
       const data = await res.json();
       setIsLoading(false);

@@ -24,7 +24,7 @@ export default function Listing() {
       try {
         setIsLoading(true);
         const res = await fetch(
-          `https://market-place-jj5i.onrender.com/api/listing/getSingleListing/${params.listingId}`,
+          `/api/listing/getSingleListing/${params.listingId}`,
         );
 
         if (res.ok === false) {
