@@ -23,35 +23,29 @@ export default function OAuth() {
 
       console.log(result);
 
-      const res = await fetch(
-        "https://market-place-jj5i.onrender.com/api/auth/google",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            name: result.user.displayName,
-            email: result.user.email,
-            photo: result.user.photoURL,
-          }),
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+        body: JSON.stringify({
+          name: result.user.displayName,
+          email: result.user.email,
+          photo: result.user.photoURL,
+        }),
+      });
       const data = await res.json();
       dispatch(signInSuccess(data));
       // Fetching the actual current user from the backend after signing in (based on the cookie)
       dispatch(currentUserStart());
-      const userRes = await fetch(
-        "https://market-place-jj5i.onrender.com/api/user/getCurrentUser",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
+      const userRes = await fetch("/api/user/getCurrentUser", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+      });
 
       if (!userRes.ok) {
         dispatch(currentUserFailure("Failed to get user data"));
