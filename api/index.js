@@ -55,7 +55,7 @@ app.use(helmet())
 app.use(morgan('tiny'));
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://wf-marketplace.netlify.app', 'https://marketplacewf.netlify.app'],
+  origin: ['http://localhost:5173', 'https://wf-marketplace.netlify.app',],
   credentials: true
 }));
 
