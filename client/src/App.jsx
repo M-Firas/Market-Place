@@ -36,12 +36,9 @@ function App() {
     const fetchCurrentUser = async () => {
       dispatch(currentUserStart());
       try {
-        const res = await fetch(
-          "https://market-place-jj5i.onrender.com/api/user/getCurrentUser",
-          {
-            credentials: "include",
-          },
-        );
+        const res = await fetch("/api/user/getCurrentUser", {
+          credentials: "include",
+        });
 
         if (!res.ok) throw new Error("Unauthorized");
 
